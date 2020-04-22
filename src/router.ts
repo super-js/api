@@ -19,19 +19,21 @@ interface ApiRoute<M = any> {
     validation? : KoaRouter.IMiddleware<ApiState<M>>
 }
 
-type ValidationFunction<M>        = (fieldName: string, value: any, ctx: ApiRouterContext<M>) => boolean | string;
+type ValidationFunction         = (fieldName: string, value: any, ctx: ApiRouterContext<any>) => boolean | string;
+type FieldValidationFunction<T> = { [C in keyof T]: ValidationFunction | ValidationFunction[] };
 
-type FieldValidationFunction<T, M> = { [C in keyof T]: ValidationFunction<M> | ValidationFunction<M>[] };
-
-
-interface FieldValidation<B, Q, M> {
-    query?              : Partial<FieldValidationFunction<Q, M>>;
-    body?               : Partial<FieldValidationFunction<B, M>>;
-    files?              : Partial<FieldValidationFunction<B, M>>;
+interface FieldValidation<B, Q> {
+    query?              : Partial<FieldValidationFunction<Q>>;
+    body?               : Partial<FieldValidationFunction<B>>;
+    files?              : Partial<FieldValidationFunction<B>>;
 }
 
 interface ValidationErrors {
     [fieldName: string] : string[]
+}
+
+export interface RouteHandlerOptions<B, Q> {
+    validations?: FieldValidation<B, Q>
 }
 
 function getRouteCallback<M>(callback) {
@@ -44,13 +46,13 @@ function getRouteCallback<M>(callback) {
     }
 }
 
-function getValidationErrors<M>(validationFields: FieldValidationFunction<any, M>, requestParams: any, ctx: ApiRouterContext<M>) {
+function getValidationErrors<M>(validationFields: FieldValidationFunction<any>, requestParams: any, ctx: ApiRouterContext<M>) {
 
     let validationErrors = {};
 
     Object.keys(validationFields).forEach(fieldName => {
 
-        const validations                       = (Array.isArray(validationFields[fieldName]) ? validationFields[fieldName] : [validationFields[fieldName]]) as ValidationFunction<M>[];
+        const validations                       = (Array.isArray(validationFields[fieldName]) ? validationFields[fieldName] : [validationFields[fieldName]]) as ValidationFunction[];
         const fieldValue                        = requestParams[fieldName] === undefined ? "" : requestParams[fieldName];
         let fieldValidationErrors: string[]     = [];
 
@@ -79,7 +81,7 @@ function getValidationErrors<M>(validationFields: FieldValidationFunction<any, M
 }
 
 function methodDecorator<M>(method: HttpMethod) {
-    return <B, Q>(path: string, fieldsToValidate?: FieldValidation<B, Q, M>) => {
+    return <B = {}, Q = {}>(path: string, routeHandleOptions: RouteHandlerOptions<B, Q> = {}) => {
         return function(target: any, key: string, descriptor: PropertyDescriptor) {
 
             if(!Array.isArray(target.routes)) target.routes = [];
@@ -91,27 +93,29 @@ function methodDecorator<M>(method: HttpMethod) {
                 callback    : descriptor.value
             };
 
-            if(fieldsToValidate && Object.keys(fieldsToValidate).length > 0) {
+            const {validations} = routeHandleOptions;
+
+            if(validations && Object.keys(validations).length > 0) {
                 route.validation = async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
 
                     let bodyValidationErrors: ValidationErrors = {};
                     let queryValidationErrors: ValidationErrors = {};
                     let filesValidationErrors: ValidationErrors = {};
 
-                    if(fieldsToValidate.body && Object.keys(fieldsToValidate.body).length > 0) {
-                        bodyValidationErrors    = getValidationErrors(fieldsToValidate.body, ctx.request.body, ctx);
+                    if(validations.body && Object.keys(validations.body).length > 0) {
+                        bodyValidationErrors    = getValidationErrors(validations.body, ctx.request.body, ctx);
                     }
 
-                    if(fieldsToValidate.query && Object.keys(fieldsToValidate.query).length > 0) {
-                        queryValidationErrors   = getValidationErrors(fieldsToValidate.query, ctx.query, ctx);
+                    if(validations.query && Object.keys(validations.query).length > 0) {
+                        queryValidationErrors   = getValidationErrors(validations.query, ctx.query, ctx);
                     }
 
-                    if(fieldsToValidate.files && Object.keys(fieldsToValidate.files).length > 0) {
+                    if(validations.files && Object.keys(validations.files).length > 0) {
                         const files = {};
                         if(Array.isArray((ctx.request as any).files)) {
                             (ctx.request as any).files.forEach(file => files[file.fieldname] = file);
                         }
-                        queryValidationErrors   = getValidationErrors(fieldsToValidate.files, files, ctx);
+                        queryValidationErrors   = getValidationErrors(validations.files, files, ctx);
                     }
 
                     if(Object.keys(bodyValidationErrors).length > 0
@@ -142,7 +146,7 @@ function methodDecorator<M>(method: HttpMethod) {
 }
 
 function validationFunction(validator: Function, errorMsg: string) {
-    return (fieldName: string, value: any) => validator(value) ? true : `${fieldName} ${errorMsg}`;
+    return (fieldName: string, value: any, ctx: any) => validator(value, ctx) ? true : `${fieldName} ${errorMsg}`;
 }
 
 class ApiRouter<M = any> {
@@ -175,19 +179,6 @@ class ApiRouter<M = any> {
             })
         }
     }
-
-    initRoutersInCurrentFolder(dirName: string) {
-        fs.readdirSync(dirName)
-            .filter(routerFile => routerFile.indexOf(".") !== 0 && !routerFile.includes('index'))
-            .forEach(routerFile => {
-
-                const ApiRouterClass                = require(path.join(dirName, routerFile)).default;
-                const dirRouter: ApiRouter          = new ApiRouterClass();
-
-                this.koaRouter.use(dirRouter.getRoutes(), dirRouter.getAllowedMethods());
-            });
-    }
-
 
     getRoutes(): KoaRouter.IMiddleware<ApiState<M>> {
         return this.koaRouter.routes();

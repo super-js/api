@@ -29,19 +29,18 @@ export interface IStartApiOptions<M> {
     cookieKeys: string[];
     publicRoutesPath?: string;
     privateRoutesPath?: string;
-    models?: M;
     dataWrapperOptions?: IApiDataWrapperOptions;
-    siteMapLoader?: () => IInitSiteMap;
+    getSiteMap?: () => IInitSiteMap<any>;
 }
 
 async function startApi<M = any>(options: IStartApiOptions<M>) {
     const {
         port, cookieKeys, publicRoutesPath, privateRoutesPath, jwtSecret, jwtCookie, hostName,
-        dataWrapperOptions, models, siteMapLoader
+        dataWrapperOptions, getSiteMap
     } = options;
 
     const api               = new Koa<ApiRouterContext<M>>();
-    const initSiteMap       = typeof siteMapLoader === "function" ? siteMapLoader() : null;
+    const initSiteMap       = typeof getSiteMap === "function" ? getSiteMap() : null;
 
     const [
         publicRoutes, privateRoutes
@@ -58,7 +57,7 @@ async function startApi<M = any>(options: IStartApiOptions<M>) {
     koaValidate(api);
     koaQs(api as any);
 
-    if(dataWrapperOptions && models) {
+    if(dataWrapperOptions) {
         dataWrapper = await getDataWrapper<M>(dataWrapperOptions);
     }
 

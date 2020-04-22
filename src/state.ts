@@ -37,13 +37,13 @@ export interface ApiState<M = any> {
     getFiles    : () => IFile[];
     okReply     : () => void;
     siteMap?    : SiteMap;
-    indexedSiteMap?: IndexedSiteMap;
+    indexedSiteMap?: IndexedSiteMap<any>;
 }
 
 export interface IInitState<M> {
     dataWrapper?    : DataWrapper<M>;
     auth            : ApiAuth<M>;
-    initSiteMap?    : IInitSiteMap;
+    initSiteMap?    : IInitSiteMap<any>;
 }
 
 export function initState<M>(options: IInitState<M>): any {
