@@ -1,5 +1,7 @@
-import {ApiAuth}                        from './auth';
-import {ApiRouterContext, ApiRouterNext} from "./router";
+import {ApiAuth}                            from './auth';
+import {ApiRouterContext, ApiRouterNext}    from "./router";
+import { DataWrapper } from "@super-js/datawrapper";
+import { IInitSiteMap, SiteMap, IndexedSiteMap } from "@super-js/site-map-loader";
 
 interface ApiStateToken {
     iat             : number,
@@ -22,27 +24,31 @@ export interface IFile {
     buffer      : Buffer;
 }
 
-export interface ApiState {
-    dataWrapper : any,
-    models      : any,
+export interface ApiState<M = any> {
+    dataWrapper?: DataWrapper<M>,
+    models?     : M,
     user?       : ApiStateUser & ApiStateToken,
     token?      : string,
-    auth        : ApiAuth;
+    auth        : ApiAuth<M>;
     commonLib   : any;
     data        : {[key: string]: any};
     pause       : (noOfSeconds: number) => Promise<void>;
     getFile     : () => IFile;
     getFiles    : () => IFile[];
     okReply     : () => void;
+    siteMap?    : SiteMap;
+    indexedSiteMap?: IndexedSiteMap;
 }
 
-export interface IInitState {
-    dataWrapper : any;
-    auth        : ApiAuth;
+export interface IInitState<M> {
+    dataWrapper?    : DataWrapper<M>;
+    auth            : ApiAuth<M>;
+    initSiteMap?    : IInitSiteMap;
 }
-export const initState = (options: IInitState): any => {
 
-    const {dataWrapper, auth} = options;
+export function initState<M>(options: IInitState<M>): any {
+
+    const {dataWrapper, auth, initSiteMap} = options;
 
     const formatMulterFile = file => ({
         name        : file.originalname,
@@ -52,9 +58,9 @@ export const initState = (options: IInitState): any => {
         buffer      : file.buffer
     });
 
-    return async (ctx: ApiRouterContext, next: ApiRouterNext) => {
-        ctx.state.dataWrapper   = dataWrapper;
-        ctx.state.models        = dataWrapper.models;
+    return async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
+        ctx.state.dataWrapper   = dataWrapper ? dataWrapper : null;
+        ctx.state.models        = dataWrapper && dataWrapper.models ? dataWrapper.models : null;
         ctx.state.auth          = auth;
         ctx.state.data          = {};
         ctx.state.pause         = (noOfSeconds: number) =>
@@ -69,6 +75,11 @@ export const initState = (options: IInitState): any => {
         ctx.state.getFiles     = ()  => {
             return Array.isArray(ctx.request["files"]) ? ctx.request["files"].map(formatMulterFile)   : null;
         };
+
+        if(initSiteMap) {
+            ctx.state.siteMap = initSiteMap.siteMap;
+            ctx.state.indexedSiteMap = initSiteMap.indexedSiteMap;
+        }
 
         await next();
     }

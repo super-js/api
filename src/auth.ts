@@ -1,24 +1,17 @@
 import jwt from "jsonwebtoken";
-import {ApiRouterContext} from "../components/api-router";
-import {ApiStateUser} from "../components/api-state";
+import {ApiRouterContext} from "./router";
+import {ApiStateUser} from "./state";
 
-export interface ApiAuth {
+export interface ApiAuth<M> {
     toApiStateUser(user: any): ApiStateUser;
-    setTokenCookie(ctx: ApiRouterContext, user: ApiStateUser)   : void;
-    removeTokenCookie(ctx: ApiRouterContext)                    : void;
-    tryRefresh(ctx: ApiRouterContext)                           : boolean;
+    setTokenCookie(ctx: ApiRouterContext<M>, user: ApiStateUser)   : void;
+    removeTokenCookie(ctx: ApiRouterContext<M>)                    : void;
+    tryRefresh(ctx: ApiRouterContext<M>)                           : boolean;
 }
 
-const Auth: ApiAuth = {
-    toApiStateUser      : user => ({
-        email       : user.email,
-        id          : user.id,
-        permissions : user.permissions,
-        firstName   : user.firstName,
-        lastName    : user.lastName
-    }),
-    setTokenCookie      : (ctx: ApiRouterContext, user: ApiStateUser) => {
+export function getAuthModule<M>(): ApiAuth<M> {
 
+    const setTokenCookie = (ctx: ApiRouterContext<M>, user: ApiStateUser) => {
         const token = jwt.sign(user, global.__config.JWT_SECRET, {
             expiresIn: '1h'
         });
@@ -30,26 +23,36 @@ const Auth: ApiAuth = {
             httpOnly    : true,
             overwrite   : true
         });
-    },
-    removeTokenCookie   : (ctx: ApiRouterContext) => {
-        ctx.cookies.set(global.__config.JWT_COOKIE, null, {
-            overwrite : true
-        });
-        ctx.state.user = undefined;
-    },
-    tryRefresh          : (ctx: ApiRouterContext) => {
-        if(ctx.state.user) {
-            const now                       = Math.floor(Date.now()/1000);
-            const timeBeforeExpiration      = (ctx.state.user.exp - now);
-
-            if(timeBeforeExpiration < 60) {
-                Auth.setTokenCookie(ctx, Auth.toApiStateUser(ctx.state.user));
-                return true;
-            }
-        }
-
-        return false;
     }
-};
 
-export default Auth;
+    const toApiStateUser = user => ({
+        email       : user.email,
+        id          : user.id,
+        permissions : user.permissions,
+        firstName   : user.firstName,
+        lastName    : user.lastName
+    });
+
+    return {
+        toApiStateUser, setTokenCookie,
+        removeTokenCookie   : (ctx: ApiRouterContext<M>) => {
+            ctx.cookies.set(global.__config.JWT_COOKIE, null, {
+                overwrite : true
+            });
+            ctx.state.user = undefined;
+        },
+        tryRefresh          : (ctx: ApiRouterContext<M>) => {
+            if(ctx.state.user) {
+                const now                       = Math.floor(Date.now()/1000);
+                const timeBeforeExpiration      = (ctx.state.user.exp - now);
+
+                if(timeBeforeExpiration < 60) {
+                    setTokenCookie(ctx, toApiStateUser(ctx.state.user));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+}

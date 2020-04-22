@@ -1,5 +1,7 @@
 import {ApiRouter, ApiRouterContext, ApiRouterNext} from "./router";
 import {ApiState} from "./state";
+import {getDataWrapper, IApiDataWrapperOptions} from "./datawrapper";
+import { IInitSiteMap } from "@super-js/site-map-loader";
 
 global.__production = process.env.NODE_ENV === "production";
 
@@ -14,42 +16,51 @@ import koaCors          from "@koa/cors";
 import koaValidate      from "koa-validate";
 import koaQs            from "koa-qs";
 
-import {initRoutes}     from "./routes";
-//import getDataWrapper   from "./modules/datawrapper";
-import auth             from "./auth";
+import {registerRoutes, loadRoutes}     from "./routes";
+import {getAuthModule}             from "./auth";
 
 import {initState} from "./state";
 
-
-export type ApiRouterClass = typeof ApiRouter;
-
-export interface IStartApiOptions {
+export interface IStartApiOptions<M> {
     hostName?: string;
     port: number;
     jwtSecret: string;
     jwtCookie: string;
-    keys?: string[];
-    publicRoutes?: ApiRouterClass[];
-    privateRoutes?: ApiRouterClass[];
-    dataWrapper?: any;
+    cookieKeys: string[];
+    publicRoutesPath?: string;
+    privateRoutesPath?: string;
+    models?: M;
+    dataWrapperOptions?: IApiDataWrapperOptions;
+    siteMapLoader?: () => IInitSiteMap;
 }
 
-async function startApi(options: IStartApiOptions) {
+async function startApi<M = any>(options: IStartApiOptions<M>) {
     const {
-        port, keys, publicRoutes, privateRoutes, jwtSecret, jwtCookie,
-        dataWrapper, hostName
+        port, cookieKeys, publicRoutesPath, privateRoutesPath, jwtSecret, jwtCookie, hostName,
+        dataWrapperOptions, models, siteMapLoader
     } = options;
 
-    const api       = new Koa<ApiRouterContext>();
-    //const routes    = Routes[global.__config.API_VERSION];
+    const api               = new Koa<ApiRouterContext<M>>();
+    const initSiteMap       = typeof siteMapLoader === "function" ? siteMapLoader() : null;
 
+    const [
+        publicRoutes, privateRoutes
+    ] = await Promise.all([
+        loadRoutes(publicRoutesPath),
+        loadRoutes(privateRoutesPath)
+    ]);
 
-    api.keys        = keys ? keys : [];
+    const auth              = getAuthModule<M>();
+
+    let dataWrapper = null;
+    api.keys        = cookieKeys;
 
     koaValidate(api);
     koaQs(api as any);
 
-    //const dataWrapper = await getDataWrapper();
+    if(dataWrapperOptions && models) {
+        dataWrapper = await getDataWrapper<M>(dataWrapperOptions);
+    }
 
     if(!global.__production) api.use(koaCors({credentials : true}));
 
@@ -76,23 +87,25 @@ async function startApi(options: IStartApiOptions) {
         cookie          : jwtCookie
     }));
 
-    api.use(initState({auth, dataWrapper}));
+    api.use(initState<M>({auth, dataWrapper, initSiteMap}));
 
-    if(publicRoutes) initRoutes(api, publicRoutes);
+    // Public
+    if(publicRoutes) registerRoutes(api, publicRoutes);
 
-    api.use(async (ctx: ApiRouterContext, next: ApiRouterNext) => {
+    api.use(async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
 
         if(!ctx.state.user) return ctx.throw(401);
         ctx.state.auth.tryRefresh(ctx);
 
         await next();
     });
-    api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
 
-    if(privateRoutes) initRoutes(api, privateRoutes);
+    // Private
+    api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
+    if(privateRoutes) registerRoutes(api, privateRoutes);
 
     api.listen(port,hostName ? hostName : null, () => console.log(`Listening on ${hostName ? hostName : ""}:${port}`));
 
 }
 
-export { startApi, ApiRouter, ApiState };
+export { startApi, ApiRouter, ApiState, ApiRouterContext };

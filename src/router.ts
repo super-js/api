@@ -11,46 +11,46 @@ enum HttpMethod {
     use     = "use"
 }
 
-interface ApiRoute {
+interface ApiRoute<M = any> {
+    sourceName  : string;
     path        : string | RegExp,
     method      : HttpMethod
-    callback    : KoaRouter.IMiddleware<ApiState>,
-    validation? : KoaRouter.IMiddleware<ApiState>
+    callback    : KoaRouter.IMiddleware<ApiState<M>>,
+    validation? : KoaRouter.IMiddleware<ApiState<M>>
 }
 
-type ValidationFunction         = (fieldName: string, value: any, ctx: ApiRouterContext) => boolean | string;
+type ValidationFunction<M>        = (fieldName: string, value: any, ctx: ApiRouterContext<M>) => boolean | string;
+
+type FieldValidationFunction<T, M> = { [C in keyof T]: ValidationFunction<M> | ValidationFunction<M>[] };
 
 
-type FieldValidationFunction<T> = { [C in keyof T]: ValidationFunction | ValidationFunction[] };
-
-
-interface FieldValidation<B, Q> {
-    query?              : Partial<FieldValidationFunction<Q>>;
-    body?               : Partial<FieldValidationFunction<B>>;
-    files?              : Partial<FieldValidationFunction<B>>;
+interface FieldValidation<B, Q, M> {
+    query?              : Partial<FieldValidationFunction<Q, M>>;
+    body?               : Partial<FieldValidationFunction<B, M>>;
+    files?              : Partial<FieldValidationFunction<B, M>>;
 }
 
 interface ValidationErrors {
     [fieldName: string] : string[]
 }
 
-const getRouteCallback = callback => {
-    return async (ctx: ApiRouterContext, next: ApiRouterNext) => {
+function getRouteCallback<M>(callback) {
+    return async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
         try {
             await callback(ctx, next);
         } catch(err) {
             ctx.throw(500, err);
         }
     }
-};
+}
 
-const getValidationErrors = (validationFields: FieldValidationFunction<any>, requestParams: any, ctx: ApiRouterContext) => {
+function getValidationErrors<M>(validationFields: FieldValidationFunction<any, M>, requestParams: any, ctx: ApiRouterContext<M>) {
 
     let validationErrors = {};
 
     Object.keys(validationFields).forEach(fieldName => {
 
-        const validations                       = (Array.isArray(validationFields[fieldName]) ? validationFields[fieldName] : [validationFields[fieldName]]) as ValidationFunction[];
+        const validations                       = (Array.isArray(validationFields[fieldName]) ? validationFields[fieldName] : [validationFields[fieldName]]) as ValidationFunction<M>[];
         const fieldValue                        = requestParams[fieldName] === undefined ? "" : requestParams[fieldName];
         let fieldValidationErrors: string[]     = [];
 
@@ -76,22 +76,23 @@ const getValidationErrors = (validationFields: FieldValidationFunction<any>, req
     });
 
     return validationErrors;
-};
+}
 
-const methodDecorator = (method: HttpMethod) => {
-    return <B, Q>(path: string, fieldsToValidate?: FieldValidation<B, Q>) => {
+function methodDecorator<M>(method: HttpMethod) {
+    return <B, Q>(path: string, fieldsToValidate?: FieldValidation<B, Q, M>) => {
         return function(target: any, key: string, descriptor: PropertyDescriptor) {
 
             if(!Array.isArray(target.routes)) target.routes = [];
 
-            const route: ApiRoute = {
+            const route: ApiRoute<M> = {
+                sourceName: target.constructor.name,
                 path,
                 method      : method,
                 callback    : descriptor.value
             };
 
             if(fieldsToValidate && Object.keys(fieldsToValidate).length > 0) {
-                route.validation = async (ctx: ApiRouterContext, next: ApiRouterNext) => {
+                route.validation = async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
 
                     let bodyValidationErrors: ValidationErrors = {};
                     let queryValidationErrors: ValidationErrors = {};
@@ -135,36 +136,40 @@ const methodDecorator = (method: HttpMethod) => {
             }
 
             target.routes.push(route);
+
         }
     }
-};
+}
 
 function validationFunction(validator: Function, errorMsg: string) {
     return (fieldName: string, value: any) => validator(value) ? true : `${fieldName} ${errorMsg}`;
 }
 
-class ApiRouter {
+class ApiRouter<M = any> {
 
     static isRequired   = validationFunction(value => {
         return typeof value === "object" ? !!value : !validator.isEmpty(value);
     }, 'is required');
     static isEmail      = validationFunction(validator.isEmail, 'must be a valid email address - xxx@yyy.zz');
 
-    koaRouter           : KoaRouter<ApiState>;
+    koaRouter           : KoaRouter<ApiState<M>>;
 
     constructor() {
-        const routes: Array<ApiRoute>   = (this as any).__proto__.routes;
-        const prefix: string            = (this as any).__proto__.constructor.prefix;
 
-        this.koaRouter = new KoaRouter<ApiState>({
+        const routes: Array<ApiRoute<M>>    = this.constructor.prototype.routes;
+        const prefix: string                = this.constructor.prototype.prefix;
+
+        this.koaRouter = new KoaRouter<ApiState<M>>({
             prefix : prefix
         });
 
         if(Array.isArray(routes)) {
-            routes.forEach(route => {
+            routes
+                .filter(route => route.sourceName === this.constructor.name)
+                .forEach(route => {
 
                 let middleWares = [getRouteCallback(route.callback)];
-                if(route.validation) middleWares.unshift(route.validation);
+                if(route.validation) middleWares.unshift(route. validation);
 
                 this.koaRouter[route.method](route.path, ...middleWares);
             })
@@ -184,11 +189,11 @@ class ApiRouter {
     }
 
 
-    getRoutes(): KoaRouter.IMiddleware<ApiState> {
+    getRoutes(): KoaRouter.IMiddleware<ApiState<M>> {
         return this.koaRouter.routes();
     }
 
-    getAllowedMethods(): KoaRouter.IMiddleware<ApiState> {
+    getAllowedMethods(): KoaRouter.IMiddleware<ApiState<M>> {
         return this.koaRouter.allowedMethods();
     }
 
@@ -202,7 +207,12 @@ class ApiRouter {
 
     static init(prefix?: string) {
         return function(constructor: any) {
-            constructor.prefix = prefix ? prefix : '';
+            let protoPrefix = prefix ? prefix : '';
+
+            let proto = Object.getPrototypeOf(constructor.prototype);
+            if(proto.prefix) protoPrefix = `${proto.prefix}${protoPrefix}`
+
+            constructor.prototype.prefix = protoPrefix;
         }
     }
 
@@ -211,7 +221,8 @@ class ApiRouter {
     static all  = methodDecorator(HttpMethod.use);
 }
 
-export type ApiRouterContext   = RouterContext<ApiState>;
-export type ApiRouterNext      = (err?: Error) => Promise<any>;
+export type ApiRouterClass                  = typeof ApiRouter;
+export type ApiRouterContext<M>             = RouterContext<ApiState<M>>;
+export type ApiRouterNext                   = (err?: Error) => Promise<any>;
 
 export {ApiRouter};

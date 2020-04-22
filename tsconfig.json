@@ -12,7 +12,8 @@
       "declaration"              : true
    },
    "include": [
-      "src/**/*"
+      "src/**/*",
+      "node_modules/@super-js/**/*"
    ],
    "exclude": [
       "node_modules"
