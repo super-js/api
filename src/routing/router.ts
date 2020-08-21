@@ -1,9 +1,8 @@
 import KoaRouter, {RouterContext}   from 'koa-router';
-import {ApiState}                   from './state';
+import {ApiState} from '../state';
 import validator                    from 'validator';
-import fs from "fs";
-import path from "path";
-
+import {ApiSession} from "../session";
+import {IIntegrations} from "../integrations";
 
 enum HttpMethod {
     get     = "get",
@@ -172,11 +171,11 @@ class ApiRouter<M = any> {
                 .filter(route => route.sourceName === this.constructor.name)
                 .forEach(route => {
 
-                let middleWares = [getRouteCallback(route.callback)];
-                if(route.validation) middleWares.unshift(route. validation);
+                    let middleWares = [getRouteCallback(route.callback)];
+                    if(route.validation) middleWares.unshift(route.validation as any);
 
-                this.koaRouter[route.method](route.path, ...middleWares);
-            })
+                    this.koaRouter[route.method](route.path, ...middleWares as any);
+                })
         }
     }
 
@@ -213,7 +212,14 @@ class ApiRouter<M = any> {
 }
 
 export type ApiRouterClass                  = typeof ApiRouter;
-export type ApiRouterContext<M>             = RouterContext<ApiState<M>>;
 export type ApiRouterNext                   = (err?: Error) => Promise<any>;
+
+export interface ApiRouterContext<M, U = any> extends RouterContext<ApiState<M, U>> {
+    session: ApiSession;
+    logIn: (user: U) => void;
+    logOut: () => void;
+    csrf: string;
+    integrations: IIntegrations
+}
 
 export {ApiRouter};

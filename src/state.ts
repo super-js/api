@@ -1,20 +1,7 @@
-import {ApiAuth}                            from './auth';
-import {ApiRouterContext, ApiRouterNext}    from "./router";
+import {ApiRouterContext, ApiRouterNext}    from "./routing/router";
+
 import { DataWrapper } from "@super-js/datawrapper";
 import { IInitSiteMap, SiteMap, IndexedSiteMap } from "@super-js/site-map-loader";
-
-interface ApiStateToken {
-    iat             : number,
-    exp             : number
-}
-
-export interface ApiStateUser {
-    id              : string;
-    email           : string;
-    firstName       : string;
-    lastName        : string;
-    permissions     : string[];
-}
 
 export interface IFile {
     name        : string;
@@ -24,12 +11,11 @@ export interface IFile {
     buffer      : Buffer;
 }
 
-export interface ApiState<M = any> {
+export interface ApiState<M = any, U = any> {
     dataWrapper?: DataWrapper<M>,
     models?     : M,
-    user?       : ApiStateUser & ApiStateToken,
+    user?       : U,
     token?      : string,
-    auth        : ApiAuth<M>;
     commonLib   : any;
     data        : {[key: string]: any};
     pause       : (noOfSeconds: number) => Promise<void>;
@@ -42,13 +28,12 @@ export interface ApiState<M = any> {
 
 export interface IInitState<M> {
     dataWrapper?    : DataWrapper<M>;
-    auth            : ApiAuth<M>;
     initSiteMap?    : IInitSiteMap<any>;
 }
 
 export function initState<M>(options: IInitState<M>): any {
 
-    const {dataWrapper, auth, initSiteMap} = options;
+    const {dataWrapper, initSiteMap} = options;
 
     const formatMulterFile = file => ({
         name        : file.originalname,
@@ -59,9 +44,9 @@ export function initState<M>(options: IInitState<M>): any {
     });
 
     return async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
+
         ctx.state.dataWrapper   = dataWrapper ? dataWrapper : null;
         ctx.state.models        = dataWrapper && dataWrapper.models ? dataWrapper.models : null;
-        ctx.state.auth          = auth;
         ctx.state.data          = {};
         ctx.state.pause         = (noOfSeconds: number) =>
             new Promise((resolve) => setTimeout(resolve, noOfSeconds * 1000));
@@ -83,4 +68,4 @@ export function initState<M>(options: IInitState<M>): any {
 
         await next();
     }
-};
+}
