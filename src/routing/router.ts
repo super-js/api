@@ -3,6 +3,8 @@ import {ApiState} from '../state';
 import validator                    from 'validator';
 import {ApiSession} from "../session";
 import {IIntegrations} from "../integrations";
+import {DataWrapper, DataWrapperValidationError} from "@super-js/datawrapper";
+import {IFileInfo, IStores} from "../storage";
 
 enum HttpMethod {
     get     = "get",
@@ -10,12 +12,15 @@ enum HttpMethod {
     use     = "use"
 }
 
-interface ApiRoute<M = any> {
+type ApiRoutePath = string | string[] | RegExp;
+
+interface ApiRoute {
     sourceName  : string;
-    path        : string | RegExp,
-    method      : HttpMethod
-    callback    : KoaRouter.IMiddleware<ApiState<M>>,
-    validation? : KoaRouter.IMiddleware<ApiState<M>>
+    path        : ApiRoutePath;
+    method      : HttpMethod;
+    callback    : KoaRouter.IMiddleware<ApiState>;
+    validation? : KoaRouter.IMiddleware<ApiState>;
+    requiredPermissionCodes?: string[];
 }
 
 type ValidationFunction         = (fieldName: string, value: any, ctx: ApiRouterContext<any>) => boolean | string;
@@ -32,20 +37,34 @@ interface ValidationErrors {
 }
 
 export interface RouteHandlerOptions<B, Q> {
-    validations?: FieldValidation<B, Q>
+    validations?: FieldValidation<B, Q>;
+    requiredPermissionCodes?: string[];
 }
 
-function getRouteCallback<M>(callback) {
-    return async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
+export interface ApiRouterInitOptions<C> {
+    prefix?: string;
+    requiredPermissionCodes?: string[];
+}
+
+export interface IHasOneOfPermissionCodesOptions {
+    isSuperUser?: boolean;
+}
+
+function getRouteCallback<D extends DataWrapper>(callback) {
+    return async (ctx: ApiRouterContext<D>, next: ApiRouterNext) => {
         try {
             await callback(ctx, next);
         } catch(err) {
-            ctx.throw(500, err);
+            if(err instanceof DataWrapperValidationError) {
+                ctx.throw(422, err);
+            } else {
+                ctx.throw(500, err);
+            }
         }
     }
 }
 
-function getValidationErrors<M>(validationFields: FieldValidationFunction<any>, requestParams: any, ctx: ApiRouterContext<M>) {
+function getValidationErrors<D extends DataWrapper>(validationFields: FieldValidationFunction<any>, requestParams: any, ctx: ApiRouterContext<D>) {
 
     let validationErrors = {};
 
@@ -79,23 +98,24 @@ function getValidationErrors<M>(validationFields: FieldValidationFunction<any>, 
     return validationErrors;
 }
 
-function methodDecorator<M>(method: HttpMethod) {
+function methodDecorator<D extends DataWrapper>(method: HttpMethod) {
     return <B = {}, Q = {}>(path: string, routeHandleOptions: RouteHandlerOptions<B, Q> = {}) => {
         return function(target: any, key: string, descriptor: PropertyDescriptor) {
 
             if(!Array.isArray(target.routes)) target.routes = [];
 
-            const route: ApiRoute<M> = {
+            const route: ApiRoute = {
                 sourceName: target.constructor.name,
                 path,
                 method      : method,
-                callback    : descriptor.value
+                callback    : descriptor.value,
+                requiredPermissionCodes: routeHandleOptions.requiredPermissionCodes
             };
 
             const {validations} = routeHandleOptions;
 
             if(validations && Object.keys(validations).length > 0) {
-                route.validation = async (ctx: ApiRouterContext<M>, next: ApiRouterNext) => {
+                route.validation = async (ctx: ApiRouterContext<D>, next: ApiRouterNext) => {
 
                     let bodyValidationErrors: ValidationErrors = {};
                     let queryValidationErrors: ValidationErrors = {};
@@ -148,23 +168,27 @@ function validationFunction(validator: Function, errorMsg: string) {
     return (fieldName: string, value: any, ctx: any) => validator(value, ctx) ? true : `${fieldName} ${errorMsg}`;
 }
 
-class ApiRouter<M = any> {
+
+class ApiRouter<D extends DataWrapper> {
 
     static isRequired   = validationFunction(value => {
         return typeof value === "object" ? !!value : !validator.isEmpty(value);
     }, 'is required');
     static isEmail      = validationFunction(validator.isEmail, 'must be a valid email address - xxx@yyy.zz');
 
-    koaRouter           : KoaRouter<ApiState<M>>;
+    koaRouter           : KoaRouter<ApiState>;
 
     constructor() {
 
-        const routes: Array<ApiRoute<M>>    = this.constructor.prototype.routes;
+        const routes: Array<ApiRoute>    = this.constructor.prototype.routes;
         const prefix: string                = this.constructor.prototype.prefix;
 
-        this.koaRouter = new KoaRouter<ApiState<M>>({
+
+        this.koaRouter = new KoaRouter<ApiState>({
             prefix : prefix
         });
+
+        this._registerPermissionsMiddleware(this.constructor.prototype.requiredPermissionCodes);
 
         if(Array.isArray(routes)) {
             routes
@@ -174,16 +198,39 @@ class ApiRouter<M = any> {
                     let middleWares = [getRouteCallback(route.callback)];
                     if(route.validation) middleWares.unshift(route.validation as any);
 
+                    this._registerPermissionsMiddleware(route.requiredPermissionCodes, route.path);
                     this.koaRouter[route.method](route.path, ...middleWares as any);
                 })
         }
     }
 
-    getRoutes(): KoaRouter.IMiddleware<ApiState<M>> {
+    _registerPermissionsMiddleware(requiredPermissionCodes: string[], path?: ApiRoutePath) {
+        if(Array.isArray(requiredPermissionCodes) && requiredPermissionCodes.length > 0
+            && typeof this.permissionsMiddleware === "function") {
+            this.koaRouter.use(path ? path : '', async (ctx: ApiRouterContext<D>, next) => {
+                try {
+                    if(await this.permissionsMiddleware(ctx, requiredPermissionCodes)) {
+                        await next();
+                    } else {
+                        ctx.throw(403, 'Unauthorized access');
+                    }
+                } catch(err) {
+                    ctx.throw(500, err);
+                }
+            });
+        }
+    }
+
+    permissionsMiddleware(ctx: ApiRouterContext<D>, requiredPermissionCodes: string[]): Promise<boolean> | boolean {
+        return true;
+    }
+
+
+    getRoutes(): KoaRouter.IMiddleware<ApiState> {
         return this.koaRouter.routes();
     }
 
-    getAllowedMethods(): KoaRouter.IMiddleware<ApiState<M>> {
+    getAllowedMethods(): KoaRouter.IMiddleware<ApiState> {
         return this.koaRouter.allowedMethods();
     }
 
@@ -195,7 +242,10 @@ class ApiRouter<M = any> {
         console.log(this.koaRouter.stack.map(r => `${r.methods.join('|')} ${r.path}`))
     }
 
-    static init(prefix?: string) {
+    static init<C = ApiRouterContext<any>>(initOptions: ApiRouterInitOptions<C> = {}) {
+
+        const {prefix, requiredPermissionCodes = []} = initOptions;
+
         return function(constructor: any) {
             let protoPrefix = prefix ? prefix : '';
 
@@ -203,7 +253,16 @@ class ApiRouter<M = any> {
             if(proto.prefix) protoPrefix = `${proto.prefix}${protoPrefix}`
 
             constructor.prototype.prefix = protoPrefix;
+            constructor.prototype.requiredPermissionCodes = requiredPermissionCodes;
         }
+    }
+
+    static hasOneOfPermissionCodes = (requiredPermissionCodes: string[], userPermissionCodes: string[], options?: IHasOneOfPermissionCodesOptions) => {
+
+        const {isSuperUser} = options || {};
+
+        return isSuperUser || requiredPermissionCodes.length === 0
+            || requiredPermissionCodes.some(permissionCode => userPermissionCodes.indexOf(permissionCode) > -1);
     }
 
     static get  = methodDecorator(HttpMethod.get);
@@ -214,12 +273,17 @@ class ApiRouter<M = any> {
 export type ApiRouterClass                  = typeof ApiRouter;
 export type ApiRouterNext                   = (err?: Error) => Promise<any>;
 
-export interface ApiRouterContext<M, U = any> extends RouterContext<ApiState<M, U>> {
+export interface ApiRouterContext<D extends DataWrapper, U = any, E = any> extends RouterContext<ApiState<U>> {
     session: ApiSession;
+    dataWrapper?: D;
+    entities: E;
     logIn: (user: U) => void;
     logOut: () => void;
     csrf: string;
-    integrations: IIntegrations
+    integrations: IIntegrations;
+    stores: IStores;
+    getFile     : () => IFileInfo;
+    getFiles    : () => IFileInfo[];
 }
 
 export {ApiRouter};

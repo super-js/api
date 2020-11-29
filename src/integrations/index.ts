@@ -1,24 +1,38 @@
 import Koa from "koa";
 
 import {IMapboxOptions, getMapboxClient, IMapboxClient} from "./mapbox";
+import {IGoogleOptions, getGoogleClient, IGoogleClient} from "./google";
+
+import {getGeocodingClient, IGeocodingClient} from "./geocoding";
+
 import {ApiRouterContext} from "..";
 
 export interface IIntegrationOptions {
-    mapbox: IMapboxOptions
+    mapbox?: IMapboxOptions;
+    google?: IGoogleOptions;
 }
 
 export interface IIntegrations {
-    mapboxClient: IMapboxClient
+    mapboxClient?: IMapboxClient;
+    googleClient?: IGoogleClient;
+    geocoding?: IGeocodingClient;
 }
 
 export function registerIntegrations(api: Koa<any>, integrationOptions: IIntegrationOptions) {
 
-    const mapboxClient = getMapboxClient(integrationOptions.mapbox);
+    const {mapbox, google} = integrationOptions;
+
+    const mapboxClient  = mapbox ? getMapboxClient(mapbox) : null;
+    const googleClient  = google ? getGoogleClient(google) : null;
+
+
 
     api.use(async(ctx: ApiRouterContext<any>, next) => {
 
         ctx.integrations = {
-            mapboxClient
+            mapboxClient,
+            googleClient,
+            geocoding: getGeocodingClient({googleClient, mapboxClient})
         };
 
         await next();

@@ -52,7 +52,7 @@ export function registerApiSession(api: Koa<any>, apiSessionOptions: ApiSessionO
         key: sessionCookieName,
         maxAge: sessionExpirationInMinutes * 60000,
         rolling: true
-    }, api));
+    }, api as any));
 
     // Always try to decode and store user in ctx.state
     api.use(tryAndSetUser({jwtSecret, sessionExpirationInMinutes}));

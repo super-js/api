@@ -1,4 +1,4 @@
-
+import {registerDataWrapper} from "./datawrapper";
 
 global.__production = process.env.NODE_ENV === "production";
 
@@ -11,9 +11,9 @@ import koaValidate      from "koa-validate";
 import koaQs            from "koa-qs";
 
 import { IInitSiteMap } from "@super-js/site-map-loader";
+import {DataWrapper} from "@super-js/datawrapper";
 
 import {ApiState} from "./state";
-import {getDataWrapper, IApiDataWrapperOptions} from "./datawrapper";
 import {ApiRouter, ApiRouterContext, ApiRouterNext} from "./routing/router";
 import {registerRoutes, loadRoutes}     from "./routing/loader";
 import {registerApiSession, isAuthenticated, ApiSessionOptions} from "./session";
@@ -21,26 +21,30 @@ import {initState} from "./state";
 import {registerSecurityPolicies} from "./security";
 import {registerErrorHandler} from "./error";
 import {IIntegrationOptions, registerIntegrations} from "./integrations";
+import {IStorageOptions, registerApiStorage} from "./storage";
 
-export interface IStartApiOptions<M> extends ApiSessionOptions {
+export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
     port: number;
     cookieKeys: string[];
     publicRoutesPath?: string;
     privateRoutesPath?: string;
-    dataWrapperOptions?: IApiDataWrapperOptions;
+    dataWrapper?: D;
     getSiteMap?: () => IInitSiteMap<any>;
-    integrationOptions?: IIntegrationOptions;
+    integrationOptions: IIntegrationOptions;
+    storageOptions?: IStorageOptions;
 }
 
-async function startApi<M = any>(options: IStartApiOptions<M>) {
+async function startApi<D extends DataWrapper, E = any>(options: IStartApiOptions<D>): Promise<Koa<ApiRouterContext<D, E>>> {
     const {
         port, cookieKeys, publicRoutesPath, privateRoutesPath, jwtSecret, sessionCookieName, hostName,
-        dataWrapperOptions, getSiteMap, integrationOptions,
-        sessionExpirationInMinutes = 5
+        dataWrapper,
+        getSiteMap, integrationOptions = {},
+        sessionExpirationInMinutes = 5,
+        storageOptions
     } = options;
 
-    const api               = new Koa<ApiRouterContext<M>>();
+    const api               = new Koa<ApiRouterContext<D>>();
     const initSiteMap       = typeof getSiteMap === "function" ? getSiteMap() : null;
 
     const [
@@ -50,21 +54,18 @@ async function startApi<M = any>(options: IStartApiOptions<M>) {
         loadRoutes(privateRoutesPath)
     ]);
 
-    let dataWrapper = null;
     api.keys        = cookieKeys;
 
     koaValidate(api);
     koaQs(api as any);
 
-    if(dataWrapperOptions) {
-        dataWrapper = await getDataWrapper<M>(dataWrapperOptions);
-    }
-
     api.use(koaLogger());
 
     registerErrorHandler(api, {});
     registerSecurityPolicies(api, {});
-    registerIntegrations(api, integrationOptions)
+    registerIntegrations(api, integrationOptions);
+    registerDataWrapper<D>(api, dataWrapper);
+    await registerApiStorage(api, storageOptions);
 
     api.use(koaBodyParser({
         enableTypes: ['json'],
@@ -79,7 +80,7 @@ async function startApi<M = any>(options: IStartApiOptions<M>) {
         sessionExpirationInMinutes
     });
 
-    api.use(initState<M>({dataWrapper, initSiteMap}));
+    api.use(initState<D>({dataWrapper, initSiteMap}));
 
     // Public
     if(publicRoutes) registerRoutes(api, publicRoutes);
@@ -93,6 +94,7 @@ async function startApi<M = any>(options: IStartApiOptions<M>) {
 
     api.listen(port,hostName ? hostName : null, () => console.log(`Listening on ${hostName ? hostName : ""}:${port}`));
 
+    return api;
 }
 
 export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext };

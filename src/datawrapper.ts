@@ -1,15 +1,11 @@
-import {DataWrapper, IDataWrapperOptions, IDataWrapperConnectOptions} from "@super-js/datawrapper";
+import {ApiRouterContext} from "./routing/router";
+import {DataWrapper} from "@super-js/datawrapper";
+import Koa from "koa";
 
-export interface IApiDataWrapperOptions extends IDataWrapperOptions, IDataWrapperConnectOptions {}
-
-export async function getDataWrapper<M = any>(dataWrapperOptions: IApiDataWrapperOptions): Promise<DataWrapper<M>> {
-
-    const {modelsDirPath, ...constructorOptions} = dataWrapperOptions;
-
-    const dataWrapper = new DataWrapper<M>({
-        debug: !global.__production,
-        ...constructorOptions
+export function registerDataWrapper<D extends DataWrapper>(api: Koa<any>, dataWrapper?: D): void {
+    api.use(async (ctx: ApiRouterContext<D>, next) => {
+        ctx.dataWrapper = dataWrapper;
+        ctx.entities = dataWrapper.entities;
+        await next();
     });
-
-    return dataWrapper.connect({modelsDirPath});
 }
