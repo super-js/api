@@ -1,10 +1,12 @@
-import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore} from "@super-js/storage";
 import Koa from "koa";
-import {ApiRouterContext} from "./routing/router";
-import {IFileInfo} from "@super-js/storage/src/stores/base";
+
+import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IFileInfo} from "@super-js/storage";
+import {DataWrapperFile, QueryRunner} from "@super-js/datawrapper";
+
+export type Store = typeof AVAILABLE_STORES[number];
 
 export interface IStorageOption {
-    store: typeof AVAILABLE_STORES[number],
+    store: Store,
     storeOptions: ICreateS3StoreOptions
 }
 
@@ -14,6 +16,16 @@ export interface IStorageOptions {
 
 export interface IStores {
     [name: string]: BaseStore
+}
+
+export interface IStoreFilesOptions {
+    storageName: string;
+    fileEntity: typeof DataWrapperFile;
+    entityTypeName: string;
+    entityInstanceId: number;
+    files?: IFileInfo[];
+    transaction?: QueryRunner;
+    createdBy: string;
 }
 
 const formatMulterFile = (file): IFileInfo => ({
@@ -43,8 +55,39 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
         }
     }
 
-    api.use(async (ctx: ApiRouterContext<any>, next) => {
+    api.use(async (ctx: any, next) => {
         ctx.stores = stores;
+
+        ctx.storeFiles = async options => {
+
+            const {entityTypeName, entityInstanceId, storageName, transaction, createdBy} = options;
+
+            const store = ctx.stores[storageName];
+            if(!store) throw new Error("Invalid store");
+
+            const newFiles = options.files || ctx.getFiles();
+            // const existingFiles = await options.fileEntity.find({
+            //     where: {
+            //         entityTypeName, entityInstanceId
+            //     }
+            // });
+
+            const filesToCreate = newFiles
+                .map(file => ({
+                    fileName: file.fileName,
+                    storageType: store.getStoreTypeName(),
+                    storageInfo: {},
+                    entityTypeName, entityInstanceId,
+                    contentType: file.contentType,
+                    contentEncoding: file.contentEncoding,
+                    contentLength: file.contentLength,
+                    createdBy,
+                }))
+
+            await options.fileEntity.bulkCreateAndSave(filesToCreate, {
+                transaction
+            });
+        }
 
         ctx.getFile      = ()  => {
             return Array.isArray(ctx.request["files"]) ? formatMulterFile(ctx.request["files"][0]) : null;
