@@ -4,7 +4,7 @@ import validator                    from 'validator';
 import {ApiSession} from "../session";
 import {IIntegrations} from "../integrations";
 import {DataWrapper, DataWrapperValidationError} from "@super-js/datawrapper";
-import {IFileInfo, IStoreFilesOptions, IStores} from "../storage";
+import {IFileInfo, IUpdateFilesOptions, IStores, IUpdatedFiles} from "../storage";
 
 enum HttpMethod {
     get     = "get",
@@ -284,7 +284,7 @@ export interface ApiRouterContext<D extends DataWrapper, U = any, E = any> exten
     stores: IStores;
     getFile     : () => IFileInfo;
     getFiles    : () => IFileInfo[];
-    storeFiles  : (options: IStoreFilesOptions) => Promise<void>;
+    updateFiles  : (options: IUpdateFilesOptions) => Promise<IUpdatedFiles>;
 }
 
 export {ApiRouter};

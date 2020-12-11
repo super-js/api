@@ -22,6 +22,7 @@ import {registerSecurityPolicies} from "./security";
 import {registerErrorHandler} from "./error";
 import {IIntegrationOptions, registerIntegrations} from "./integrations";
 import {IStorageOptions, registerApiStorage} from "./storage";
+import {apiParser} from "./parser";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
@@ -68,7 +69,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     await registerApiStorage(api, storageOptions);
 
     api.use(koaBodyParser({
-        enableTypes: ['json'],
+        enableTypes: ['json', 'form'],
         strict: true
     }));
     api.use(koaCompress());
@@ -90,6 +91,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
     // Private
     api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
+    api.use(apiParser());
     if(privateRoutes) registerRoutes(api, privateRoutes);
 
     api.listen(port,hostName ? hostName : null, () => console.log(`Listening on ${hostName ? hostName : ""}:${port}`));
