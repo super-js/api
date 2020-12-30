@@ -3,7 +3,7 @@ import {ApiState} from '../state';
 import validator                    from 'validator';
 import {ApiSession} from "../session";
 import {IIntegrations} from "../integrations";
-import {DataWrapper, DataWrapperValidationError} from "@super-js/datawrapper";
+import {DataWrapper, DataWrapperValidationError, BaseDataWrapperEntity} from "@super-js/datawrapper";
 import {IFileInfo, IUpdateFilesOptions, IStores, IUpdatedFiles} from "../storage";
 
 enum HttpMethod {
@@ -98,7 +98,7 @@ function getValidationErrors<D extends DataWrapper>(validationFields: FieldValid
     return validationErrors;
 }
 
-function methodDecorator<D extends DataWrapper>(method: HttpMethod) {
+function methodDecorator<D extends DataWrapper, E extends BaseDataWrapperEntity>(method: HttpMethod) {
     return <B = {}, Q = {}>(path: string, routeHandleOptions: RouteHandlerOptions<B, Q> = {}) => {
         return function(target: any, key: string, descriptor: PropertyDescriptor) {
 
