@@ -1,11 +1,11 @@
 {
   "name": "@super-js/api",
   "version": "0.0.1",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "license": "MIT",
   "private": true,
   "files": [
-    "src"
+    "lib"
   ],
   "dependencies": {
     "@koa/cors": "^3.1.0",
@@ -55,7 +55,7 @@
     "typescript": "^4.1.2"
   },
   "scripts": {
-    "build": "npm run clean && npx tsc -p tsconfig.json",
+    "build": "yarn run clean && npx tsc -p tsconfig.json",
     "clean": "npx rimraf lib/**/*",
     "test": "yarn jest"
   }

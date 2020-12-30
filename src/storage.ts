@@ -1,7 +1,7 @@
 import Koa from "koa";
 
 import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo} from "@super-js/storage";
-import {DataWrapperFile, QueryRunner} from "@super-js/datawrapper";
+import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
 
 export type Store = typeof AVAILABLE_STORES[number];
 
@@ -24,7 +24,7 @@ export interface IUpdateFilesOptions {
     entityTypeName: string;
     entityInstanceId: number;
     files?: IBasicFileInfo[];
-    transaction?: QueryRunner;
+    transaction?: DataWrapperTransaction;
     changedBy: string;
     fileNamesToRemove?: string[];
     path: string;

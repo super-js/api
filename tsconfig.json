@@ -1,9 +1,10 @@
 {
    "compilerOptions"       : {
-      "lib"                      : ["es5", "es6"],
+      "lib"                      : ["es2020", "DOM"],
       "target"                   : "es2020",
       "module"                   : "commonjs",
       "moduleResolution"         : "node",
+      "allowSyntheticDefaultImports": true,
       "emitDecoratorMetadata"    : true,
       "experimentalDecorators"   : true,
       "sourceMap"                : true,
@@ -12,10 +13,6 @@
       "declaration"              : true
    },
    "include": [
-      "src/**/*",
-      "node_modules/@super-js/**/*"
-   ],
-   "exclude": [
-      "node_modules"
+      "src/**/*"
    ]
 }
