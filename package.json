@@ -10,8 +10,8 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/multer": "^3.0.0",
-    "@super-js/datawrapper": "latest",
-    "@super-js/storage": "latest",
+    "@super-js/datawrapper": "^0.0.5",
+    "@super-js/storage": "^0.0.11",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
@@ -30,7 +30,7 @@
     "validator": "^13.5.1"
   },
   "devDependencies": {
-    "@super-js/site-map-loader": "latest",
+    "@super-js/site-map-loader": "^0.0.9",
     "@types/jest": "^26.0.10",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/koa": "^2.11.4",

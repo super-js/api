@@ -506,31 +506,31 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
-"@super-js/datawrapper@latest":
-  version "0.0.3"
-  resolved "https://npm.pkg.github.com/download/@super-js/datawrapper/0.0.3/63abbb9eaebd03548222959c269b95801e5a7e6d8526b53a28be5e5053455680#9e873677a31553b5afe7b9b7b6edfc8595e94e0c"
-  integrity sha512-45GIqHKLKnpCXk4sarMPvJulMrz3vMEHqjN9O3C6o8TFN84BwsnngP7oAhAv7UDVOPUGOl1VNTDR57CBxX1R0g==
+"@super-js/datawrapper@^0.0.5":
+  version "0.0.5"
+  resolved "https://npm.pkg.github.com/download/@super-js/datawrapper/0.0.5/500478f451608b3cfd4a19028e6aa656e73001f191d1e13d2c4d3d88fdafe117#a1372f8e09b80fa2d0ddb3984381c79810509788"
+  integrity sha512-k6OZVeX+xNs+7CjGCvAHGnXcgMWuZy/G2LPPWpJCtO6kwClymMxhsWKeIIp4BpujSgriAZ8ojhxCAH3avYCv6g==
   dependencies:
     class-transformer "^0.3.1"
     class-validator "^0.12.2"
     mysql2 "^2.2.5"
-    pg "^8.4.2"
+    pg "^8.5.1"
     typeorm "^0.2.29"
-    uuid "^8.3.1"
+    uuid "^8.3.2"
 
-"@super-js/site-map-loader@latest":
-  version "0.0.3"
-  resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.3/df27b9eabdc26c2eccd76f6f1fb49877e493bb8ea0ec29528c266e53a5a0e14e#8ca411c772b3175aa3c57eb27f87a3e79960adf3"
-  integrity sha512-GXXurYM9eNs14+NFfu6kLXgJD82VdA2FZ/V04+nG8dMyQAQGWbqshytbkQe2DqVkdSLW3gcq23kTrThYvpLGUA==
+"@super-js/site-map-loader@^0.0.9":
+  version "0.0.9"
+  resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.9/3f1af10916155ad1ff811b4d08119832636d67bda4978023e88bf5a71735a850#c62405b3cf3148726044a401d5afb5d24aafdf00"
+  integrity sha512-B5JohPm8Mbz0k3B0CbavBXoIRVbfZdpLj/0K8GjRGIekABpCeFbSg1OzaOnxQI7HIEDa5srGW+TaQqCkz5NnCg==
 
-"@super-js/storage@latest":
-  version "0.0.3"
-  resolved "https://npm.pkg.github.com/download/@super-js/storage/0.0.3/df2d1fd517b98c506316c32ba8fe79fa632edad8f4925125ecb2de237c039c0e#6c7a118e1640bf5d5fbedd8b241bfad58d4f2491"
-  integrity sha512-hLR8ZvAVGJBT+HSamF6P5h0RzmpB5mC6DynY2XJCOrbh0H9CRQ9nRa17joSfq3L5shXa6u+0F+ormXJs0KIsTg==
+"@super-js/storage@^0.0.11":
+  version "0.0.11"
+  resolved "https://npm.pkg.github.com/download/@super-js/storage/0.0.11/694769a510c3f721b2c9667861a78126f0987bd2bf53cc685a9ccc213c8d0676#3a9d8587c9c3bab9b331545e5c97dc194c5afd27"
+  integrity sha512-ik9vkSZzgg/+vBgVbAb3ozO3UBt4/H/tyQhWQFPre2X/jFwl8rEO8vsk5qJKmwbIHtZeWrYx3ixx1S6JrfdhcQ==
   dependencies:
     "@types/aws-sdk" "^2.7.0"
-    aws-sdk "^2.799.0"
-    uuid "^8.3.1"
+    aws-sdk "^2.819.0"
+    uuid "^8.3.2"
 
 "@types/accepts@*":
   version "1.3.5"
@@ -1086,10 +1086,25 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-sdk@*, aws-sdk@^2.799.0:
+aws-sdk@*:
   version "2.799.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.799.0.tgz#8b1a64c1a9f8ccf5794eb07bdd8051e4cb6adcfd"
   integrity sha512-NYAoiNU+bJXhlJsC0rFqrmD5t5ho7/VxldmziP6HLPYHfOCI9Uvk6UVjfPmhLWPm0mHnIxhsHqmsNGyjhHNYmw==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@^2.819.0:
+  version "2.819.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.819.0.tgz#bc2d878543cc170af2c58704422bcfc38c08dc3b"
+  integrity sha512-Eu/YVodZN6oBL5P3NtUJDeZwlV2kPEn4PKfK+5kQmQnxx1+EepP9SvYel7f7RfYi9XtzsMnUz7ms5p1DsRAa6Q==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -3969,7 +3984,7 @@ pg-types@^2.1.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@^8.4.2:
+pg@^8.5.1:
   version "8.5.1"
   resolved "https://registry.yarnpkg.com/pg/-/pg-8.5.1.tgz#34dcb15f6db4a29c702bf5031ef2e1e25a06a120"
   integrity sha512-9wm3yX9lCfjvA98ybCyw2pADUivyNWT/yIP4ZcDVpMN0og70BUWYEGXPCTAQdGTAqnytfRADb7NERrY1qxhIqw==
@@ -5063,10 +5078,10 @@ uuid@^8.3.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.0.tgz#ab738085ca22dc9a8c92725e459b1d507df5d6ea"
   integrity sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
 
-uuid@^8.3.1:
-  version "8.3.1"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.1.tgz#2ba2e6ca000da60fce5a196954ab241131e05a31"
-  integrity sha512-FOmRr+FmWEIG8uhZv6C2bTgEVXsHk08kE7mPlrBbEe+c3r9pjceVPgupIfNIhc4yx55H69OXANrUaSuu9eInKg==
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-to-istanbul@^7.0.0:
   version "7.1.0"
