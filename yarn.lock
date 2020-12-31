@@ -506,9 +506,10 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
-"@super-js/datawrapper@git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/datawrapper":
-  version "0.0.1"
-  resolved "git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/datawrapper#5c2ae03075d0e0c53174eb36bdd463b716bcbef5"
+"@super-js/datawrapper@latest":
+  version "0.0.3"
+  resolved "https://npm.pkg.github.com/download/@super-js/datawrapper/0.0.3/63abbb9eaebd03548222959c269b95801e5a7e6d8526b53a28be5e5053455680#9e873677a31553b5afe7b9b7b6edfc8595e94e0c"
+  integrity sha512-45GIqHKLKnpCXk4sarMPvJulMrz3vMEHqjN9O3C6o8TFN84BwsnngP7oAhAv7UDVOPUGOl1VNTDR57CBxX1R0g==
   dependencies:
     class-transformer "^0.3.1"
     class-validator "^0.12.2"
@@ -517,13 +518,15 @@
     typeorm "^0.2.29"
     uuid "^8.3.1"
 
-"@super-js/site-map-loader@git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/site-map-loader":
-  version "0.0.1"
-  resolved "git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/site-map-loader#2fd4abb0174a8d7a6548fe6667f9fd05b9c202b1"
+"@super-js/site-map-loader@latest":
+  version "0.0.3"
+  resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.3/df27b9eabdc26c2eccd76f6f1fb49877e493bb8ea0ec29528c266e53a5a0e14e#8ca411c772b3175aa3c57eb27f87a3e79960adf3"
+  integrity sha512-GXXurYM9eNs14+NFfu6kLXgJD82VdA2FZ/V04+nG8dMyQAQGWbqshytbkQe2DqVkdSLW3gcq23kTrThYvpLGUA==
 
-"@super-js/storage@git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/storage":
-  version "0.0.1"
-  resolved "git+https://e668e1baac78425389a6f2bdde47d32afe045b69:x-oauth-basic@github.com/super-js/storage#4db1f1cf75aadf37224104d4df26af1c6c75559b"
+"@super-js/storage@latest":
+  version "0.0.3"
+  resolved "https://npm.pkg.github.com/download/@super-js/storage/0.0.3/df2d1fd517b98c506316c32ba8fe79fa632edad8f4925125ecb2de237c039c0e#6c7a118e1640bf5d5fbedd8b241bfad58d4f2491"
+  integrity sha512-hLR8ZvAVGJBT+HSamF6P5h0RzmpB5mC6DynY2XJCOrbh0H9CRQ9nRa17joSfq3L5shXa6u+0F+ormXJs0KIsTg==
   dependencies:
     "@types/aws-sdk" "^2.7.0"
     aws-sdk "^2.799.0"
