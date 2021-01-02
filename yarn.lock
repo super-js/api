@@ -278,6 +278,18 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@fortawesome/fontawesome-common-types@^0.2.32":
+  version "0.2.32"
+  resolved "https://npm.fontawesome.com/@fortawesome/fontawesome-common-types/-/0.2.32/fontawesome-common-types-0.2.32.tgz#3436795d5684f22742989bfa08f46f50f516f259"
+  integrity sha512-ux2EDjKMpcdHBVLi/eWZynnPxs0BtFVXJkgHIxXRl+9ZFaHPvYamAfCzeeQFqHRjuJtX90wVnMRaMQAAlctz3w==
+
+"@fortawesome/fontawesome-svg-core@^1.2.30":
+  version "1.2.32"
+  resolved "https://npm.fontawesome.com/@fortawesome/fontawesome-svg-core/-/1.2.32/fontawesome-svg-core-1.2.32.tgz#da092bfc7266aa274be8604de610d7115f9ba6cf"
+  integrity sha512-XjqyeLCsR/c/usUpdWcOdVtWFVjPbDFBTQkn2fQRrWhhUoxriQohO2RWDxLyUM8XpD+Zzg5xwJ8gqTYGDLeGaQ==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.32"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -506,7 +518,7 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
-"@super-js/datawrapper@^0.0.5":
+"@super-js/datawrapper@*":
   version "0.0.5"
   resolved "https://npm.pkg.github.com/download/@super-js/datawrapper/0.0.5/500478f451608b3cfd4a19028e6aa656e73001f191d1e13d2c4d3d88fdafe117#a1372f8e09b80fa2d0ddb3984381c79810509788"
   integrity sha512-k6OZVeX+xNs+7CjGCvAHGnXcgMWuZy/G2LPPWpJCtO6kwClymMxhsWKeIIp4BpujSgriAZ8ojhxCAH3avYCv6g==
@@ -518,12 +530,14 @@
     typeorm "^0.2.29"
     uuid "^8.3.2"
 
-"@super-js/site-map-loader@^0.0.9":
-  version "0.0.9"
-  resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.9/3f1af10916155ad1ff811b4d08119832636d67bda4978023e88bf5a71735a850#c62405b3cf3148726044a401d5afb5d24aafdf00"
-  integrity sha512-B5JohPm8Mbz0k3B0CbavBXoIRVbfZdpLj/0K8GjRGIekABpCeFbSg1OzaOnxQI7HIEDa5srGW+TaQqCkz5NnCg==
+"@super-js/site-map-loader@*":
+  version "0.0.10"
+  resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.10/c6bea5a881eff28bb3c67ba7c992a36056eb4209eca8f987720b0a19a1266458#37192f92aa05c2ebdeca54f57590c08ba05ff92a"
+  integrity sha512-NZMfJ8EO9y1fNnqPZTIp722CkAG03YWgb+bzU8v13F9ol3ITp5jCJBBALqR4k7L6N6soIZlp6h54+nGZRgiETA==
+  dependencies:
+    "@fortawesome/fontawesome-svg-core" "^1.2.30"
 
-"@super-js/storage@^0.0.11":
+"@super-js/storage@*":
   version "0.0.11"
   resolved "https://npm.pkg.github.com/download/@super-js/storage/0.0.11/694769a510c3f721b2c9667861a78126f0987bd2bf53cc685a9ccc213c8d0676#3a9d8587c9c3bab9b331545e5c97dc194c5afd27"
   integrity sha512-ik9vkSZzgg/+vBgVbAb3ozO3UBt4/H/tyQhWQFPre2X/jFwl8rEO8vsk5qJKmwbIHtZeWrYx3ixx1S6JrfdhcQ==
