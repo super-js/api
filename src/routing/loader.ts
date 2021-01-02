@@ -25,7 +25,7 @@ async function loadRoutes(routersPath: string): Promise<ApiRouterClass[] | null>
 
     return routerFiles.reduce((_, routerFile) => {
         if(routerFile.indexOf(".") !== 0
-        && !minimatch(path.basename(routerFile), "*.+(ts|map)")) {
+        && (!global.__production || !minimatch(path.basename(routerFile), "*.+(ts|map)"))) {
             try {
                 const {...RouterClasses} = require(routerFile);
                 _.push(...Object.keys(RouterClasses).map(routerName => RouterClasses[routerName]));
