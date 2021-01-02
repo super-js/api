@@ -2,6 +2,7 @@ import Koa from "koa";
 
 import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
+import type {ApiRouterContext} from "./routing/router";
 
 export type Store = typeof AVAILABLE_STORES[number];
 
@@ -63,7 +64,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
         }
     }
 
-    api.use(async (ctx: any, next) => {
+    api.use(async (ctx: ApiRouterContext<any>, next) => {
         ctx.stores = stores;
 
         ctx.getFile      = ()  => {
@@ -93,7 +94,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
             const store = ctx.stores[storageName] as BaseStore;
             if(!store) throw new Error("Invalid store");
 
-            const newFiles = options.files || ctx.getFiles() || [];
+            const newFiles = (options.files as IFileInfo[]) || ctx.getFiles() || [];
             const fileNamesToRemove = options.fileNamesToRemove || ctx.getFileNamesToRemove() || [];
             if(newFiles.length > 0 || fileNamesToRemove.length > 0) {
 

@@ -21,7 +21,7 @@ import {initState} from "./state";
 import {registerSecurityPolicies} from "./security";
 import {registerErrorHandler} from "./error";
 import {IIntegrationOptions, registerIntegrations} from "./integrations";
-import {IStorageOptions, registerApiStorage} from "./storage";
+import {IStorageOptions, registerApiStorage, IUpdatedFiles} from "./storage";
 import {apiParser} from "./parser";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
@@ -99,4 +99,4 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     return api;
 }
 
-export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext };
+export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext, IUpdatedFiles };

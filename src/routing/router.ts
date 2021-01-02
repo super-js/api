@@ -1,4 +1,6 @@
 import KoaRouter, {RouterContext}   from 'koa-router';
+import type {Request} from "koa";
+
 import {ApiState} from '../state';
 import validator                    from 'validator';
 import {ApiSession} from "../session";
@@ -273,7 +275,11 @@ class ApiRouter<D extends DataWrapper> {
 export type ApiRouterClass                  = typeof ApiRouter;
 export type ApiRouterNext                   = (err?: Error) => Promise<any>;
 
-export interface ApiRouterContext<D extends DataWrapper, U = any, E = any> extends RouterContext<ApiState<U>> {
+export interface ApiRouterRequest extends Request {
+    body: any;
+}
+
+export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
     session: ApiSession;
     dataWrapper?: D;
     entities: E;
@@ -284,7 +290,10 @@ export interface ApiRouterContext<D extends DataWrapper, U = any, E = any> exten
     stores: IStores;
     getFile     : () => IFileInfo;
     getFiles    : () => IFileInfo[];
+    getFileNamesToRemove : () => string[];
+    getExistingFiles: () => IFileInfo[];
     updateFiles  : (options: IUpdateFilesOptions) => Promise<IUpdatedFiles>;
-}
+    request: ApiRouterRequest;
+} & RouterContext<ApiState<U>>
 
 export {ApiRouter};
