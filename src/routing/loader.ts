@@ -1,7 +1,9 @@
 import KoaRouter   from 'koa-router';
 import recursiveReadDir from "recursive-readdir";
+import minimatch from "minimatch";
 
 import {ApiRouter, ApiRouterClass}  from "./router";
+import path from "path";
 
 function registerRoutes(api, Routes: typeof ApiRouter[]) {
 
@@ -22,8 +24,8 @@ async function loadRoutes(routersPath: string): Promise<ApiRouterClass[] | null>
     const routerFiles = await recursiveReadDir(routersPath);
 
     return routerFiles.reduce((_, routerFile) => {
-
-        if(routerFile.indexOf(".") !== 0) {
+        if(routerFile.indexOf(".") !== 0
+        && !minimatch(path.basename(routerFile), "*.+(ts|map)")) {
             try {
                 const {...RouterClasses} = require(routerFile);
                 _.push(...Object.keys(RouterClasses).map(routerName => RouterClasses[routerName]));
