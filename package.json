@@ -1,6 +1,6 @@
 {
   "name": "@super-js/api",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "lib/index.js",
   "license": "MIT",
   "repository": "git://github.com/super-js/api.git",
@@ -8,12 +8,12 @@
     "lib"
   ],
   "dependencies": {
-    "@types/koa": "^2.11.4",
-    "@types/koa-router": "^7.4.1",
     "@koa/cors": "^3.1.0",
     "@koa/multer": "^3.0.0",
     "@super-js/datawrapper": "*",
     "@super-js/storage": "*",
+    "@types/koa": "^2.11.4",
+    "@types/koa-router": "^7.4.1",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
