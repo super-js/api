@@ -87,7 +87,8 @@ function getValidationErrors<D extends DataWrapper>(validationFields: FieldValid
 
         });
 
-        const isEmpty = typeof fieldValue === "object" ? !fieldValue : validator.isEmpty(fieldValue ? fieldValue : "");
+        const isEmpty = typeof fieldValue === "boolean" ?
+            false : typeof fieldValue === "object" ? !fieldValue : validator.isEmpty(fieldValue ? fieldValue : "");
 
 
         if(fieldValidationErrors.length > 0) {
@@ -174,7 +175,10 @@ function validationFunction(validator: Function, errorMsg: string) {
 class ApiRouter<D extends DataWrapper> {
 
     static isRequired   = validationFunction(value => {
+        if(typeof value === "boolean") return true;
+
         return typeof value === "object" ? !!value : !validator.isEmpty(value);
+
     }, 'is required');
     static isEmail      = validationFunction(validator.isEmail, 'must be a valid email address - xxx@yyy.zz');
 
