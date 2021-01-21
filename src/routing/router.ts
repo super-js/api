@@ -88,7 +88,7 @@ function getValidationErrors<D extends DataWrapper>(validationFields: FieldValid
         });
 
         const isEmpty = typeof fieldValue === "boolean" ?
-            false : typeof fieldValue === "object" ? !fieldValue : validator.isEmpty(fieldValue ? fieldValue : "");
+            false : typeof fieldValue === "object" ? !fieldValue : validator.isEmpty(fieldValue.toString());
 
 
         if(fieldValidationErrors.length > 0) {
@@ -177,8 +177,7 @@ class ApiRouter<D extends DataWrapper> {
     static isRequired   = validationFunction(value => {
         if(typeof value === "boolean") return true;
 
-        return typeof value === "object" ? !!value : !validator.isEmpty(value);
-
+        return typeof value === "object" ? !!value : !validator.isEmpty(value.toString());
     }, 'is required');
     static isEmail      = validationFunction(validator.isEmail, 'must be a valid email address - xxx@yyy.zz');
 
