@@ -180,6 +180,23 @@ class ApiRouter<D extends DataWrapper> {
         return typeof value === "object" ? !!value : !validator.isEmpty(value.toString());
     }, 'is required');
     static isEmail      = validationFunction(validator.isEmail, 'must be a valid email address - xxx@yyy.zz');
+    static alwaysArray = (fieldName: string, value: any, ctx: ApiRouterContext<any>) => {
+
+        try {
+            const _makeArray = (targetObject) => {
+                if(!value) targetObject[fieldName] = [];
+                if(!Array.isArray(value)) targetObject[fieldName] = [value];
+            }
+
+            if(ctx.request.body[fieldName] === value) _makeArray(ctx.request.body);
+            if(ctx.query[fieldName] === value) _makeArray(ctx.query);
+
+            return true;
+        } catch(err) {
+            return `Unable to convert ${fieldName}:${value} to an array`
+        }
+
+    }
 
     koaRouter           : KoaRouter<ApiState>;
 
@@ -280,6 +297,7 @@ export type ApiRouterNext                   = (err?: Error) => Promise<any>;
 
 export interface ApiRouterRequest extends Request {
     body: any;
+    files?: File[];
 }
 
 export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
