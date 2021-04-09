@@ -52,10 +52,10 @@ export interface IHasOneOfPermissionCodesOptions {
     isSuperUser?: boolean;
 }
 
-function getRouteCallback<D extends DataWrapper>(callback) {
+function getRouteCallback<D extends DataWrapper>(apiRouter: ApiRouter<D>, callback) {
     return async (ctx: ApiRouterContext<D>, next: ApiRouterNext) => {
         try {
-            await callback(ctx, next);
+            await callback.call(apiRouter, ctx, next);
         } catch(err) {
             if(err instanceof DataWrapperValidationError) {
                 ctx.throw(422, err);
@@ -217,7 +217,7 @@ class ApiRouter<D extends DataWrapper> {
                 .filter(route => route.sourceName === this.constructor.name)
                 .forEach(route => {
 
-                    let middleWares = [getRouteCallback(route.callback)];
+                    let middleWares = [getRouteCallback(this, route.callback)];
                     if(route.validation) middleWares.unshift(route.validation as any);
 
                     this._registerPermissionsMiddleware(route.requiredPermissionCodes, route.path);

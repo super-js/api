@@ -35,13 +35,7 @@ async function loadRoutes(routersPath: string): Promise<ApiRouterClass[] | null>
         }
         return _;
     }, []).sort((routerClassA, routerClassB) => {
-        if(routerClassA.prototype.prefix < routerClassB.prototype.prefix) {
-            return 1;
-        } else if(routerClassB.prototype.prefix > routerClassB.prototype.prefix) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return routerClassA.isPrototypeOf(routerClassB) ? -1 : 1;
     })
 }
 
