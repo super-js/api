@@ -23,6 +23,7 @@ import {registerErrorHandler} from "./error";
 import {IIntegrationOptions, registerIntegrations} from "./integrations";
 import {IStorageOptions, registerApiStorage, IUpdatedFiles} from "./storage";
 import {apiParser} from "./parser";
+import {registerFileOperations} from "./files";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
@@ -31,8 +32,9 @@ export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptio
     publicRoutesPath?: string;
     privateRoutesPath?: string;
     dataWrapper?: D;
+    useFileParserForPublicRoutes?: boolean;
     getSiteMap?: () => IInitSiteMap<any>;
-    integrationOptions: IIntegrationOptions;
+    integrationOptions?: IIntegrationOptions;
     storageOptions?: IStorageOptions;
 }
 
@@ -42,7 +44,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
         dataWrapper,
         getSiteMap, integrationOptions = {},
         sessionExpirationInMinutes = 5,
-        storageOptions
+        storageOptions, useFileParserForPublicRoutes
     } = options;
 
     const api               = new Koa<ApiRouterContext<D>>();
@@ -81,16 +83,19 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
         sessionExpirationInMinutes
     });
 
+    registerFileOperations(api);
+
     api.use(initState<D>({dataWrapper, initSiteMap}));
 
     // Public
+    if(useFileParserForPublicRoutes) api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
     if(publicRoutes) registerRoutes(api, publicRoutes);
 
     // Allow only authenticated users
     api.use(isAuthenticated);
 
     // Private
-    api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
+    if(!useFileParserForPublicRoutes) api.use(koaMulter({storage: koaMulter.memoryStorage()}).any());
     api.use(apiParser());
     if(privateRoutes) registerRoutes(api, privateRoutes);
 

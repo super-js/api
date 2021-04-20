@@ -1,14 +1,14 @@
 import Koa from "koa";
 
-import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo} from "@super-js/storage";
+import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
 import type {ApiRouterContext} from "./routing/router";
 
-export type Store = typeof AVAILABLE_STORES[number];
+export type StoreTypeName = keyof typeof AVAILABLE_STORES;
 
 export interface IStorageOption {
-    store: Store,
-    storeOptions: ICreateS3StoreOptions
+    storeTypeName: StoreTypeName,
+    storeOptions: ICreateS3StoreOptions | ICreateLocalStoreOptions;
 }
 
 export interface IStorageOptions {
@@ -29,6 +29,8 @@ export interface IUpdateFilesOptions {
     changedBy: string;
     fileNamesToRemove?: string[];
     path: string;
+    extraData?: any;
+    generateUuid?: boolean;
 }
 
 export interface IUpdatedFiles {
@@ -56,10 +58,8 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
             const storageName = Object.keys(storageOptions)[i];
             const storageOption = storageOptions[storageName];
 
-            if(AVAILABLE_STORES.indexOf(storageOption.store) > -1) {
-                if(storageOption.store === "S3") {
-                    stores[storageName] = await S3Store.createS3Store(storageOption.storeOptions);
-                }
+            if(AVAILABLE_STORES[storageOption.storeTypeName]) {
+                stores[storageName] = await AVAILABLE_STORES[storageOption.storeTypeName].createStore(storageOption.storeOptions as any);
             }
         }
     }
@@ -88,7 +88,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
 
             const {
                 entityTypeName, entityInstanceId, storageName, transaction, changedBy,
-                path
+                path, extraData, generateUuid
             } = options;
 
             const store = ctx.stores[storageName] as BaseStore;
@@ -124,7 +124,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
                                 data: {
                                     entityTypeName, entityInstanceId
                                 },
-                                path
+                                path, generateUuid
                             }))
                     })
 
@@ -143,6 +143,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
                                 eTag: uploadedFile.eTag || null,
                                 url: uploadedFile.url || null,
                                 createdBy: changedBy,
+                                ...(extraData ? extraData : {})
                             })),
                         {
                             transaction

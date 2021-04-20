@@ -7,6 +7,7 @@ import {ApiSession} from "../session";
 import {IIntegrations} from "../integrations";
 import {DataWrapper, DataWrapperValidationError, BaseDataWrapperEntity} from "@super-js/datawrapper";
 import {IFileInfo, IUpdateFilesOptions, IStores, IUpdatedFiles} from "../storage";
+import {ISendFileInfo} from "../files";
 
 enum HttpMethod {
     get     = "get",
@@ -315,6 +316,7 @@ export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
     getExistingFiles: () => IFileInfo[];
     updateFiles  : (options: IUpdateFilesOptions) => Promise<IUpdatedFiles>;
     request: ApiRouterRequest;
+    sendFile: (options: ISendFileInfo) => void;
 } & RouterContext<ApiState<U>>
 
 export {ApiRouter};
