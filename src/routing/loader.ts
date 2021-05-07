@@ -14,6 +14,7 @@ function registerRoutes(api, Routes: typeof ApiRouter[]) {
         apiRouter.use(router.getRoutes(), router.getAllowedMethods());
     });
 
+
     api.use(apiRouter.routes());
 }
 

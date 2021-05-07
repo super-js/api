@@ -66,7 +66,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
     registerErrorHandler(api, {});
     registerSecurityPolicies(api, {});
-    registerIntegrations(api, integrationOptions);
+    await registerIntegrations(api, integrationOptions);
     registerDataWrapper<D>(api, dataWrapper);
     await registerApiStorage(api, storageOptions);
 

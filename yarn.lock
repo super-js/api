@@ -530,6 +530,11 @@
     typeorm "^0.2.29"
     uuid "^8.3.2"
 
+"@super-js/modbus@^0.0.2":
+  version "0.0.2"
+  resolved "https://npm.pkg.github.com/download/@super-js/modbus/0.0.2/bb99f8ecd835f9ed5c881e57d67ebac08edcf7247a7fc179931d3d109e23e977#fce12b42adf02c73243a10186913968124f70e00"
+  integrity sha512-Gq0/Cu9OB86LKm9hrZ7ogZ9//0sYpCYrcjsCarWtU4M0C1Hur9OTrVC/2ZaEG5ZvTWhwBgdAlldVs+Xh9og4qg==
+
 "@super-js/site-map-loader@*":
   version "0.0.10"
   resolved "https://npm.pkg.github.com/download/@super-js/site-map-loader/0.0.10/c6bea5a881eff28bb3c67ba7c992a36056eb4209eca8f987720b0a19a1266458#37192f92aa05c2ebdeca54f57590c08ba05ff92a"

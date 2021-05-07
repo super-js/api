@@ -33,6 +33,7 @@
     "validator": "^13.5.2"
   },
   "devDependencies": {
+    "@super-js/modbus": "*",
     "@super-js/site-map-loader": "*",
     "@types/jest": "^26.0.10",
     "@types/jsonwebtoken": "^8.5.0",
@@ -59,5 +60,8 @@
     "build": "yarn run clean && npx tsc -p tsconfig.json",
     "clean": "npx rimraf lib/**/*",
     "test": "yarn jest"
+  },
+  "optionalDependencies": {
+    "@super-js/modbus": "*"
   }
 }
