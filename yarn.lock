@@ -530,7 +530,7 @@
     typeorm "^0.2.29"
     uuid "^8.3.2"
 
-"@super-js/modbus@^0.0.2":
+"@super-js/modbus@*":
   version "0.0.2"
   resolved "https://npm.pkg.github.com/download/@super-js/modbus/0.0.2/bb99f8ecd835f9ed5c881e57d67ebac08edcf7247a7fc179931d3d109e23e977#fce12b42adf02c73243a10186913968124f70e00"
   integrity sha512-Gq0/Cu9OB86LKm9hrZ7ogZ9//0sYpCYrcjsCarWtU4M0C1Hur9OTrVC/2ZaEG5ZvTWhwBgdAlldVs+Xh9og4qg==
@@ -1680,6 +1680,11 @@ cssstyle@^2.2.0:
   integrity sha512-AZL67abkUzIuvcHqk7c09cezpGNcxUxU4Ioi/05xHk4DQeTkWmGYftIE6ctU6AEt+Gn4n1lDStOtj7FKycP71A==
   dependencies:
     cssom "~0.3.6"
+
+csv-parse@^4.15.4:
+  version "4.15.4"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-4.15.4.tgz#ad1ec62aaf71a642982dfcb81f1848184d691db5"
+  integrity sha512-OdBbFc0yZhOm17lSxqkirrHlFFVpKRT0wp4DAGoJelsP3LbGzV9LNr7XmM/lrr0uGkCtaqac9UhP8PDHXOAbMg==
 
 dashdash@^1.12.0:
   version "1.14.1"

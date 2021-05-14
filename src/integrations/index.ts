@@ -7,7 +7,7 @@ import {getGeocodingClient, IGeocodingClient} from "./geocoding";
 
 import {ApiRouterContext} from "..";
 
-import {ModbusIntegration, IModbusIntegrationOptions, getModbusIntegration} from "./modbus";
+import {ModbusManager, IModbusIntegrationOptions, getModbusIntegration} from "./modbus";
 
 export interface IIntegrationOptions {
     mapbox?: IMapboxOptions;
@@ -19,7 +19,7 @@ export interface IIntegrations {
     mapboxClient?: IMapboxClient;
     googleClient?: IGoogleClient;
     geocoding?: IGeocodingClient;
-    modbus?: ModbusIntegration;
+    modbus?: ModbusManager;
 }
 
 export async function registerIntegrations(api: Koa<any>, integrationOptions: IIntegrationOptions): Promise<void> {

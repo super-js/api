@@ -30,3 +30,5 @@ export async function getModbusIntegration(api: Koa<any>, options?: IModbusInteg
 
     return null;
 }
+
+export type {ModbusManager}
