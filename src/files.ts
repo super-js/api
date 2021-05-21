@@ -1,5 +1,5 @@
-import Koa from "koa";
-import {ApiRouterContext} from "./routing/router";
+import type Koa from "koa";
+import type {ApiRouterContext} from "./routing/router";
 
 export interface ISendFileInfo {
     fileName: string;

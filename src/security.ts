@@ -1,4 +1,4 @@
-import Koa from "koa";
+import type Koa from "koa";
 import KoaCsrf          from "koa-csrf";
 import {ApiRouterContext} from "./routing/router";
 import koaCors from "@koa/cors";

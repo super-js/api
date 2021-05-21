@@ -1,6 +1,6 @@
-import {ApiRouterContext} from "./routing/router";
-import {DataWrapper} from "@super-js/datawrapper";
-import Koa from "koa";
+import type {ApiRouterContext} from "./routing/router";
+import type {DataWrapper} from "@super-js/datawrapper";
+import type Koa from "koa";
 
 export function registerDataWrapper<D extends DataWrapper>(api: Koa<any>, dataWrapper?: D): void {
     api.use(async (ctx: ApiRouterContext<D>, next) => {

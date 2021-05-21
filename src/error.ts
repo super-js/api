@@ -1,5 +1,5 @@
 import koaJsonError     from "koa-json-error";
-import Koa from "koa";
+import type Koa from "koa";
 
 export interface IApiErrorHandlerOptions {
 

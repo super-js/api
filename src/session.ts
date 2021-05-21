@@ -1,5 +1,7 @@
-import koaSession, {Session} from "koa-session";
-import Koa from "koa";
+import koaSession from "koa-session";
+import type {Session} from "koa-session";
+
+import type Koa from "koa";
 import jwt from "jsonwebtoken";
 
 import {ApiRouterContext} from "./routing/router";

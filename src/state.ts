@@ -1,7 +1,7 @@
 import {ApiRouterContext, ApiRouterNext}    from "./routing/router";
 
-import { DataWrapper } from "@super-js/datawrapper";
-import { IInitSiteMap, SiteMap, IndexedSiteMap } from "@super-js/site-map-loader";
+import type { DataWrapper } from "@super-js/datawrapper";
+import type { IInitSiteMap, SiteMap, IndexedSiteMap } from "@super-js/site-map-loader";
 
 
 export interface ApiState<U = any> {

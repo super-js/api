@@ -1,4 +1,4 @@
-import Koa from "koa";
+import type Koa from "koa";
 
 import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
