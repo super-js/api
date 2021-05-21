@@ -14,7 +14,7 @@ import { IInitSiteMap } from "@super-js/site-map-loader";
 import {DataWrapper} from "@super-js/datawrapper";
 
 import type {ApiState} from "./state";
-import type {ApiRouter, ApiRouterContext, ApiRouterNext} from "./routing/router";
+import {ApiRouter, ApiRouterContext, ApiRouterNext} from "./routing/router";
 import {registerRoutes, loadRoutes}     from "./routing/loader";
 import {registerApiSession, isAuthenticated, ApiSessionOptions} from "./session";
 import {initState} from "./state";
