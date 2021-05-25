@@ -8,6 +8,7 @@ import {ApiRouterContext} from "./routing/router";
 
 export interface ApiSession extends Session {
     user?: any;
+    csrf: string;
 }
 
 export interface ApiSessionOptions {

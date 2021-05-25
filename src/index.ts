@@ -18,7 +18,7 @@ import {ApiRouter, ApiRouterContext, ApiRouterNext} from "./routing/router";
 import {registerRoutes, loadRoutes}     from "./routing/loader";
 import {registerApiSession, isAuthenticated, ApiSessionOptions} from "./session";
 import {initState} from "./state";
-import {registerSecurityPolicies} from "./security";
+import {GetAllowedOrigins, registerSecurityPolicies} from "./security";
 import {registerErrorHandler} from "./error";
 import {IIntegrationOptions, registerIntegrations} from "./integrations";
 import {IStorageOptions, registerApiStorage, IUpdatedFiles} from "./storage";
@@ -37,6 +37,8 @@ export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptio
     getSiteMap?: () => IInitSiteMap<any>;
     integrationOptions?: IIntegrationOptions;
     storageOptions?: IStorageOptions;
+    getAllowedOrigins?: GetAllowedOrigins;
+    trustProxy?: boolean;
 }
 
 async function startApi<D extends DataWrapper, E = any>(options: IStartApiOptions<D>): Promise<Koa<ApiRouterContext<D, E>>> {
@@ -45,7 +47,8 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
         dataWrapper,
         getSiteMap, integrationOptions = {},
         sessionExpirationInMinutes = 5,
-        storageOptions, useFileParserForPublicRoutes
+        storageOptions, useFileParserForPublicRoutes,
+        getAllowedOrigins, trustProxy = true
     } = options;
 
     const api               = new Koa<ApiRouterContext<D>>();
@@ -58,7 +61,8 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
         loadRoutes(privateRoutesPath)
     ]);
 
-    api.keys        = cookieKeys;
+    api.keys = cookieKeys;
+    api.proxy = trustProxy;
 
     koaValidate(api);
     koaQs(api as any);
@@ -66,7 +70,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     api.use(koaLogger());
 
     registerErrorHandler(api, {});
-    registerSecurityPolicies(api, {});
+    registerSecurityPolicies(api, {getAllowedOrigins});
     await registerIntegrations(api, integrationOptions);
     registerDataWrapper<D>(api, dataWrapper);
     await registerApiStorage(api, storageOptions);

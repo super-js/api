@@ -1,27 +1,31 @@
 import type Koa from "koa";
-import KoaCsrf          from "koa-csrf";
 import {ApiRouterContext} from "./routing/router";
 import koaCors from "@koa/cors";
 
-export interface IApiSecurityPoliciesOptions {
+export type GetAllowedOrigins = () => Promise<string[]>;
 
+export interface IApiSecurityPoliciesOptions {
+    getAllowedOrigins?: GetAllowedOrigins;
 }
 
 export function registerSecurityPolicies(api: Koa<any>, securityPoliciesOptions: IApiSecurityPoliciesOptions) {
 
-    if(!global.__production) {
-        api.use(koaCors({credentials : true}));
-    } else {
-        api.use(new KoaCsrf({
-            invalidTokenMessage: 'Invalid CSRF token',
-            invalidTokenStatusCode: 403,
-            excludedMethods: ['GET', 'HEAD', 'OPTIONS'],
-            disableQuery: false
-        }));
+    const {getAllowedOrigins} = securityPoliciesOptions;
 
-        api.use(async(ctx: ApiRouterContext<any>, next) => {
-            await next();
-        });
-    }
+    api.use(koaCors({
+        credentials : true,
+        origin: async (ctx: ApiRouterContext<any>) => {
+
+            const origin = ctx.get('Origin');
+
+            if(typeof getAllowedOrigins === "function") {
+                const allowedOrigins = await getAllowedOrigins();
+
+                return allowedOrigins.indexOf(origin) > -1 ? origin : allowedOrigins[0] || 'null'
+            } else {
+                return origin;
+            }
+        }
+    }));
 
 }
