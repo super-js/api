@@ -1,7 +1,7 @@
 import csvParse from 'csv-parse';
 
 import type Koa from "koa";
-import type {ApiRouterContext} from "./routing/router";
+import type {ApiRouterContext} from "../routing/router";
 
 export interface IParseCsvOptions {
     hasHeader?: boolean;
