@@ -24,7 +24,9 @@ import {IIntegrationOptions, registerIntegrations} from "./integrations";
 import {IStorageOptions, registerApiStorage, IUpdatedFiles} from "./storage";
 import {apiParser} from "./parser";
 import {registerFileOperations} from "./files";
-import {registerCsvParser} from "./csv";
+
+import {registerCsvParser} from "./tools/csv";
+import {registerXmlTools} from "./tools/xml";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
@@ -90,6 +92,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
     registerFileOperations(api);
     registerCsvParser(api);
+    registerXmlTools(api);
 
     api.use(initState<D>({dataWrapper, initSiteMap}));
 

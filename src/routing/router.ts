@@ -8,7 +8,8 @@ import {IIntegrations} from "../integrations";
 import {DataWrapper, DataWrapperValidationError, BaseDataWrapperEntity} from "@super-js/datawrapper";
 import {IFileInfo, IUpdateFilesOptions, IStores, IUpdatedFiles} from "../storage";
 import {ISendFileInfo} from "../files";
-import {ParseCsv} from "../csv";
+import {ParseCsv} from "../tools/csv";
+import {ParseXml} from "../tools/xml";
 
 enum HttpMethod {
     get     = "get",
@@ -319,6 +320,7 @@ export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
     request: ApiRouterRequest;
     sendFile: (options: ISendFileInfo) => void;
     parseCsv: ParseCsv;
+    parseXml: ParseXml;
 } & RouterContext<ApiState<U>>
 
 export {ApiRouter};
