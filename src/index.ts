@@ -20,7 +20,7 @@ import {registerApiSession, isAuthenticated, ApiSessionOptions} from "./session"
 import {initState} from "./state";
 import {GetAllowedOrigins, registerSecurityPolicies} from "./security";
 import {registerErrorHandler} from "./error";
-import {IIntegrationOptions, registerIntegrations} from "./integrations";
+import {IIntegrationOptions, IIntegrations, registerIntegrations} from "./integrations";
 import {IStorageOptions, registerApiStorage, IUpdatedFiles} from "./storage";
 import {apiParser} from "./parser";
 import {registerFileOperations} from "./files";
@@ -43,7 +43,12 @@ export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptio
     trustProxy?: boolean;
 }
 
-async function startApi<D extends DataWrapper, E = any>(options: IStartApiOptions<D>): Promise<Koa<ApiRouterContext<D, E>>> {
+export interface IStartApiResult<D extends DataWrapper, E = any> {
+    api: Koa<ApiRouterContext<D, E>>;
+    integrations: IIntegrations;
+}
+
+async function startApi<D extends DataWrapper, E = any>(options: IStartApiOptions<D>): Promise<IStartApiResult<D,E>> {
     const {
         port, cookieKeys, publicRoutesPath, privateRoutesPath, jwtSecret, sessionCookieName, hostName,
         dataWrapper,
@@ -73,7 +78,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
     registerErrorHandler(api, {});
     registerSecurityPolicies(api, {getAllowedOrigins});
-    await registerIntegrations(api, integrationOptions);
+    const integrations = await registerIntegrations(api, integrationOptions);
     registerDataWrapper<D>(api, dataWrapper);
     await registerApiStorage(api, storageOptions);
 
@@ -110,7 +115,9 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
     api.listen(port,hostName ? hostName : null, () => console.log(`Listening on ${hostName ? hostName : ""}:${port}`));
 
-    return api;
+    return {
+        api, integrations
+    };
 }
 
 export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext, IUpdatedFiles };

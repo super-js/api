@@ -22,12 +22,13 @@ export interface IIntegrations {
     modbus?: ModbusManager;
 }
 
-export async function registerIntegrations(api: Koa<any>, integrationOptions: IIntegrationOptions): Promise<void> {
+export async function registerIntegrations(api: Koa<any>, integrationOptions: IIntegrationOptions): Promise<IIntegrations> {
 
     const {mapbox, google} = integrationOptions;
 
     const mapboxClient  = mapbox ? getMapboxClient(mapbox) : null;
     const googleClient  = google ? getGoogleClient(google) : null;
+    const geocoding = getGeocodingClient({googleClient, mapboxClient});
 
     const modbusIntegration = await getModbusIntegration(api, integrationOptions.modbus);
 
@@ -36,7 +37,7 @@ export async function registerIntegrations(api: Koa<any>, integrationOptions: II
         let integrations: IIntegrations = {
             mapboxClient,
             googleClient,
-            geocoding: getGeocodingClient({googleClient, mapboxClient})
+            geocoding
         }
 
         if(modbusIntegration) integrations.modbus = modbusIntegration;
@@ -45,4 +46,9 @@ export async function registerIntegrations(api: Koa<any>, integrationOptions: II
 
         await next();
     });
+
+    return {
+        mapboxClient, googleClient, geocoding,
+        modbus: modbusIntegration
+    }
 }
