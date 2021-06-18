@@ -27,6 +27,7 @@ import {registerFileOperations} from "./files";
 
 import {registerCsvParser} from "./tools/csv";
 import {registerXmlTools} from "./tools/xml";
+import {IDrivers, IDriversOptions, registerDrivers} from "./drivers";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
@@ -38,6 +39,7 @@ export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptio
     useFileParserForPublicRoutes?: boolean;
     getSiteMap?: () => IInitSiteMap<any>;
     integrationOptions?: IIntegrationOptions;
+    driverOptions?: IDriversOptions;
     storageOptions?: IStorageOptions;
     getAllowedOrigins?: GetAllowedOrigins;
     trustProxy?: boolean;
@@ -46,13 +48,14 @@ export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptio
 export interface IStartApiResult<D extends DataWrapper, E = any> {
     api: Koa<ApiRouterContext<D, E>>;
     integrations: IIntegrations;
+    drivers: IDrivers;
 }
 
 async function startApi<D extends DataWrapper, E = any>(options: IStartApiOptions<D>): Promise<IStartApiResult<D,E>> {
     const {
         port, cookieKeys, publicRoutesPath, privateRoutesPath, jwtSecret, sessionCookieName, hostName,
         dataWrapper,
-        getSiteMap, integrationOptions = {},
+        getSiteMap, integrationOptions = {}, driverOptions = {},
         sessionExpirationInMinutes = 5,
         storageOptions, useFileParserForPublicRoutes,
         getAllowedOrigins, trustProxy = true
@@ -79,6 +82,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     registerErrorHandler(api, {});
     registerSecurityPolicies(api, {getAllowedOrigins});
     const integrations = await registerIntegrations(api, integrationOptions);
+    const drivers = await registerDrivers(api, driverOptions);
     registerDataWrapper<D>(api, dataWrapper);
     await registerApiStorage(api, storageOptions);
 
@@ -116,8 +120,9 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     api.listen(port,hostName ? hostName : null, () => console.log(`Listening on ${hostName ? hostName : ""}:${port}`));
 
     return {
-        api, integrations
+        api, integrations, drivers
     };
 }
 
 export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext, IUpdatedFiles };
+export * as QueueClients from "@super-js/queue-clients";

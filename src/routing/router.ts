@@ -10,6 +10,7 @@ import {IFileInfo, IUpdateFilesOptions, IStores, IUpdatedFiles} from "../storage
 import {ISendFileInfo} from "../files";
 import {ParseCsv} from "../tools/csv";
 import {ParseXml} from "../tools/xml";
+import {IDrivers} from "../drivers";
 
 enum HttpMethod {
     get     = "get",
@@ -311,6 +312,7 @@ export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
     logOut: () => void;
     csrf: string;
     integrations: IIntegrations;
+    drivers: IDrivers;
     stores: IStores;
     getFile     : () => IFileInfo;
     getFiles    : () => IFileInfo[];
