@@ -3,7 +3,6 @@ import type Koa from "koa";
 import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
 import type {ApiRouterContext} from "./routing/router";
-import {IUploadedFile} from "../../storage/src";
 
 export type StoreTypeName = keyof typeof AVAILABLE_STORES;
 
