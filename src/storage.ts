@@ -3,6 +3,7 @@ import type Koa from "koa";
 import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
 import type {ApiRouterContext} from "./routing/router";
+import {IUploadedFile} from "../../storage/src";
 
 export type StoreTypeName = keyof typeof AVAILABLE_STORES;
 
@@ -94,6 +95,16 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
             const store = ctx.stores[storageName] as BaseStore;
             if(!store) throw new Error("Invalid store");
 
+            const getExtraData = (fileInfo: IFileInfo) => {
+                if(typeof extraData === "function") {
+                    return extraData(fileInfo) || {};
+                } else if(typeof extraData === "object" && extraData) {
+                    return extraData;
+                }
+
+                return {};
+            }
+
             const newFiles = (options.files as IFileInfo[]) || ctx.getFiles() || [];
             const fileNamesToRemove = options.fileNamesToRemove || ctx.getFileNamesToRemove() || [];
             if(newFiles.length > 0 || fileNamesToRemove.length > 0) {
@@ -143,7 +154,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
                                 eTag: uploadedFile.eTag || null,
                                 url: uploadedFile.url || null,
                                 createdBy: changedBy,
-                                ...(extraData ? extraData : {})
+                                ...getExtraData(newFiles[ix])
                             })),
                         {
                             transaction
