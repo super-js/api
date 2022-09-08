@@ -6,6 +6,10 @@ import type {ApiRouterContext} from "./routing/router";
 
 export type StoreTypeName = keyof typeof AVAILABLE_STORES;
 
+export interface IRequestFileInfo extends IFileInfo {
+    fieldName?: string;
+}
+
 export interface IStorageOption {
     storeTypeName: StoreTypeName,
     storeOptions: ICreateS3StoreOptions | ICreateLocalStoreOptions;
@@ -39,7 +43,8 @@ export interface IUpdatedFiles {
     current: IBasicFileInfo[];
 }
 
-const formatMulterFile = (file): IFileInfo => ({
+const formatMulterFile = (file): IRequestFileInfo => ({
+    fieldName: file.fieldname,
     fileName: file.originalname,
     contentLength: file.size,
     contentType: file.mimetype,
@@ -94,7 +99,7 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
             const store = ctx.stores[storageName] as BaseStore;
             if(!store) throw new Error("Invalid store");
 
-            const getExtraData = (fileInfo: IFileInfo) => {
+            const getExtraData = (fileInfo: IRequestFileInfo) => {
                 if(typeof extraData === "function") {
                     return extraData(fileInfo) || {};
                 } else if(typeof extraData === "object" && extraData) {
