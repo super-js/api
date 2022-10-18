@@ -11,6 +11,7 @@ import {ISendFileInfo} from "../files";
 import {ParseCsv} from "../tools/csv";
 import {ParseXml} from "../tools/xml";
 import {IDrivers} from "../drivers";
+import {TCreatePdfDocument} from "../pdf";
 
 enum HttpMethod {
     get     = "get",
@@ -323,6 +324,7 @@ export type ApiRouterContext<D extends DataWrapper, U = any, E = any> = {
     sendFile: (options: ISendFileInfo) => void;
     parseCsv: ParseCsv;
     parseXml: ParseXml;
+    createPdfDocument: TCreatePdfDocument;
 } & RouterContext<ApiState<U>>
 
 export {ApiRouter};

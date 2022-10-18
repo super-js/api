@@ -28,6 +28,7 @@ import {registerFileOperations} from "./files";
 import {registerCsvParser} from "./tools/csv";
 import {registerXmlTools} from "./tools/xml";
 import {IDrivers, IDriversOptions, registerDrivers} from "./drivers";
+import {registerPdfProvider} from "./pdf";
 
 export interface IStartApiOptions<D extends DataWrapper> extends ApiSessionOptions {
     hostName?: string;
@@ -102,6 +103,7 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
     registerFileOperations(api);
     registerCsvParser(api);
     registerXmlTools(api);
+    registerPdfProvider(api);
 
     api.use(initState<D>({dataWrapper, initSiteMap}));
 
@@ -126,3 +128,5 @@ async function startApi<D extends DataWrapper, E = any>(options: IStartApiOption
 
 export { startApi, ApiRouter, ApiState, ApiRouterContext, ApiRouterNext, IUpdatedFiles };
 export * as QueueClients from "@super-js/queue-clients";
+export {IRequestFileInfo} from "./storage";
+export * as PDF from "@super-js/pdf";

@@ -1,6 +1,6 @@
 import type Koa from "koa";
 
-import {ICreateS3StoreOptions, S3Store, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
+import {ICreateS3StoreOptions, AVAILABLE_STORES, BaseStore, IBasicFileInfo, IFileInfo, ICreateLocalStoreOptions} from "@super-js/storage";
 import {DataWrapperFile, QueryRunner, DataWrapperTransaction} from "@super-js/datawrapper";
 import type {ApiRouterContext} from "./routing/router";
 
@@ -28,7 +28,7 @@ export interface IUpdateFilesOptions {
     fileEntity: typeof DataWrapperFile;
     entityTypeName: string;
     entityInstanceId: number;
-    files?: IBasicFileInfo[];
+    files?: IRequestFileInfo[];
     transaction?: DataWrapperTransaction;
     changedBy: string;
     fileNamesToRemove?: string[];
@@ -86,6 +86,8 @@ export async function registerApiStorage(api: Koa<any>, storageOptions?: IStorag
             return Array.isArray(ctx.request.body["files"]) ?
                 ctx.request.body["files"].filter(file => !file.toRemove) : [];
         }
+
+
 
         ctx.updateFiles = async (options: IUpdateFilesOptions): Promise<IUpdatedFiles> => {
 
