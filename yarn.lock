@@ -640,10 +640,10 @@
     "@types/serialport" "^8.0.1"
     serialport "^9.0.7"
 
-"@super-js/pdf@*":
-  version "1.0.5"
-  resolved "https://npm.pkg.github.com/download/@super-js/pdf/1.0.5/7f11dbaf7fb790423ff19345c7cc005aa777ec99#7f11dbaf7fb790423ff19345c7cc005aa777ec99"
-  integrity sha512-f1X0sC45J8bOd53Mpfbk2QYYkMSMpFMht/kjtoJnrewIOqchWtl99Jz0TD4276BZ7oUR4Ta6eqYVZnz9Ez6M9Q==
+"@super-js/pdf@1.0.6":
+  version "1.0.6"
+  resolved "https://npm.pkg.github.com/download/@super-js/pdf/1.0.6/60ad336390d8aaeb913cd24d839a87960c552f35#60ad336390d8aaeb913cd24d839a87960c552f35"
+  integrity sha512-VhwAqtNdiqGMSl66vO+2k63XG2/d/LgxQO06y7vqEoApkM38GNlyK9tLys92Box3CPlgVOBMuHFTlodNppozQA==
   dependencies:
     canvas "2.10.1"
     pdfjs-dist "2.16.105"
