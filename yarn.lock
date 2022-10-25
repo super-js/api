@@ -676,10 +676,10 @@
     canvas "2.10.1"
     pdfjs-dist "2.16.105"
 
-"@super-js/queue-clients@2.0.0":
-  version "2.0.0"
-  resolved "https://npm.pkg.github.com/download/@super-js/queue-clients/2.0.0/239e7741396a37234574f60b68f44160543bbaaa#239e7741396a37234574f60b68f44160543bbaaa"
-  integrity sha512-sJFEBmCKUFpWOJZwHw2/dcWx+q4UqxBKL19VFyJ5cRXGTO5Sv4qFO/E8+qFfonJaDx/VHFXaMFYgX4xqxuvomw==
+"@super-js/queue-clients@2.0.1":
+  version "2.0.1"
+  resolved "https://npm.pkg.github.com/download/@super-js/queue-clients/2.0.1/4ca9871b6b4ae3b9bdf7b7c380aaadabe00ad8a4#4ca9871b6b4ae3b9bdf7b7c380aaadabe00ad8a4"
+  integrity sha512-IyqhKtaMckJuKjx95FFwwwsR93hIQgOFNGYLmtcsyMTUR4uUnRfMqj6pCqHuEOzwveiwNe3TaY02X6korn80Gg==
   dependencies:
     mqtt "4.2.6"
 
