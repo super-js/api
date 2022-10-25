@@ -1,6 +1,6 @@
 {
   "name": "@super-js/api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "lib/index.js",
   "license": "MIT",
   "repository": "git://github.com/super-js/api.git",
@@ -12,7 +12,7 @@
     "@koa/multer": "^3.0.0",
     "@super-js/datawrapper": "1.0.0",
     "@super-js/pdf": "1.0.6",
-    "@super-js/queue-clients": "*",
+    "@super-js/queue-clients": "1.0.0",
     "@super-js/storage": "*",
     "@super-js/xml": "*",
     "@types/koa": "^2.11.7",
