@@ -10,7 +10,7 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/multer": "^3.0.0",
-    "@super-js/datawrapper": "*",
+    "@super-js/datawrapper": "1.0.0",
     "@super-js/pdf": "1.0.6",
     "@super-js/queue-clients": "*",
     "@super-js/storage": "*",
